@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import re
+import json
 import sys
 
 try:
@@ -11,14 +11,16 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parents[1]
 RULE_FILE = ROOT / 'rules' / 'Custom_Proxy.list'
+PROXY_GROUPS_FILE = ROOT / 'configs' / 'proxy-groups.json'
 TEMPLATE_FILES = [
     ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v3.yaml',
     ROOT / 'templates' / 'miaomiaowu' / 'dozee_redirhost__v3.yaml',
 ]
 PROVIDER_NAME = 'Dozee_Custom_Proxy'
 GROUP_NAME = '🧩 自定义'
+CUSTOM_CATEGORY_NAME = 'dozee-custom'
 EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
-EXPECTED_URL = 'https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
+EXPECTED_RULE_URL = 'https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -30,6 +32,45 @@ ALLOWED_PREFIXES = {
 def fail(msg: str) -> None:
     print(f'ERROR: {msg}', file=sys.stderr)
     sys.exit(1)
+
+
+def validate_proxy_groups() -> None:
+    if not PROXY_GROUPS_FILE.exists():
+        fail(f'missing {PROXY_GROUPS_FILE}')
+
+    data = json.loads(PROXY_GROUPS_FILE.read_text(encoding='utf-8'))
+    if not isinstance(data, list):
+        fail(f'{PROXY_GROUPS_FILE} is not a JSON array')
+
+    custom = next(
+        (item for item in data if isinstance(item, dict) and item.get('name') == CUSTOM_CATEGORY_NAME),
+        None,
+    )
+    if custom is None:
+        fail(f'{PROXY_GROUPS_FILE} missing category {CUSTOM_CATEGORY_NAME}')
+
+    if custom.get('label') != '自定义':
+        fail(f'{PROXY_GROUPS_FILE} custom label mismatch: {custom.get("label")}')
+    if custom.get('emoji') != '🧩':
+        fail(f'{PROXY_GROUPS_FILE} custom emoji mismatch: {custom.get("emoji")}')
+    if custom.get('group_label') != GROUP_NAME:
+        fail(f'{PROXY_GROUPS_FILE} custom group_label mismatch: {custom.get("group_label")}')
+    if custom.get('presets') != ['custom']:
+        fail(f'{PROXY_GROUPS_FILE} custom presets should be ["custom"]')
+
+    site_rules = custom.get('site_rules') or []
+    if len(site_rules) != 1:
+        fail(f'{PROXY_GROUPS_FILE} custom category should have exactly one site_rule')
+
+    provider = site_rules[0]
+    if provider.get('key') != PROVIDER_NAME:
+        fail(f'{PROXY_GROUPS_FILE} custom provider key mismatch: {provider.get("key")}')
+    if provider.get('behavior') != 'classical':
+        fail(f'{PROXY_GROUPS_FILE} custom provider behavior should be classical')
+    if provider.get('format') != 'text':
+        fail(f'{PROXY_GROUPS_FILE} custom provider format should be text')
+    if provider.get('url') != EXPECTED_RULE_URL:
+        fail(f'{PROXY_GROUPS_FILE} custom provider url mismatch: {provider.get("url")}')
 
 
 def validate_rules() -> None:
@@ -72,7 +113,7 @@ def validate_template(path: Path) -> None:
         fail(f'{path} provider {PROVIDER_NAME} behavior should be classical')
     if provider.get('format') != 'text':
         fail(f'{path} provider {PROVIDER_NAME} format should be text')
-    if provider.get('url') != EXPECTED_URL:
+    if provider.get('url') != EXPECTED_RULE_URL:
         fail(f'{path} provider {PROVIDER_NAME} url mismatch: {provider.get("url")}')
 
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('GEOIP,private,')), -1)
@@ -85,10 +126,11 @@ def validate_template(path: Path) -> None:
 
 
 def main() -> None:
+    validate_proxy_groups()
     validate_rules()
     for path in TEMPLATE_FILES:
         validate_template(path)
-    print('OK: rules and templates validated')
+    print('OK: rules, proxy groups, and templates validated')
 
 
 if __name__ == '__main__':

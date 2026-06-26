@@ -45,6 +45,7 @@ templates/miaomiaowu/dozee_redirhost__v3.yaml
 3. 在妙妙屋生成订阅时选择这个模板。
 4. 客户端里会出现策略组：`🧩 自定义`。
 5. 以后新增网站时，只维护 `rules/Custom_Proxy.list`。
+6. 如果你想让「生成订阅 → 订阅链接生成器 → 自定义规则」里的规则选择界面也显示这份自定义分类，把妙妙屋的 `proxy_groups_source_url` 指向本仓库 `configs/proxy-groups.json` 的 raw 地址，然后同步一次代理组配置即可。
 
 如果是 Docker Compose 部署，通常类似：
 
