@@ -216,42 +216,42 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
+    url: https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
     path: ./providers/Dozee_Custom_Proxy.list
     interval: 3600
   Custom_Direct_Domain:
     type: http
     behavior: domain
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.yaml
     path: ./providers/Custom_Direct_Domain.yaml
     interval: 28800
   Custom_Direct_Classical_IP:
     type: http
     behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Classical_IP.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Classical_IP.yaml
     path: ./providers/Custom_Direct_Classical_IP.yaml
     interval: 28800
   Custom_Proxy_Domain:
     type: http
     behavior: domain
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Domain.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Domain.yaml
     path: ./providers/Custom_Proxy_Domain.yaml
     interval: 28800
   Custom_Proxy_Classical_IP:
     type: http
     behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Classical_IP.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Classical_IP.yaml
     path: ./providers/Custom_Proxy_Classical_IP.yaml
     interval: 28800
   Steam_CDN_Classical:
     type: http
     behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Steam_CDN_Classical.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Steam_CDN_Classical.yaml
     path: ./providers/Steam_CDN_Classical.yaml
     interval: 2880
   Custom_Port_Direct:
     type: http
     behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Port_Direct.yaml
+    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Port_Direct.yaml
     path: ./providers/Custom_Port_Direct.yaml
     interval: 28800

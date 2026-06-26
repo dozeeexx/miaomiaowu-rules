@@ -253,7 +253,7 @@
         "behavior": "classical",
         "type": "http",
         "format": "text",
-        "url": "https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list",
+        "url": "https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list",
         "path": "./ruleset/Dozee_Custom_Proxy.list",
         "interval": 3600
       }

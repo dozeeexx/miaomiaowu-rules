@@ -26,7 +26,7 @@ IP-CIDR,1.2.3.4/32,no-resolve
 Raw 地址：
 
 ```text
-https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
+https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
 ```
 
 ## 妙妙屋怎么用
@@ -77,7 +77,7 @@ volumes:
 - `emoji`: `🧩`
 - `group_label`: `🧩 自定义`
 - `site_rules[0].key`: `Dozee_Custom_Proxy`
-- `site_rules[0].url`: `https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list`
+- `site_rules[0].url`: `https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list`
 
 所以只要在妙妙屋里把系统配置里的 `proxy_groups_source_url` 指向这个文件，规则选择界面里就会出现一个可勾选的「🧩 自定义」分类，和广告拦截、AI 服务、Github、微软服务这些类别一样。
 

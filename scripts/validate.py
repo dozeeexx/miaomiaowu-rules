@@ -20,7 +20,7 @@ PROVIDER_NAME = 'Dozee_Custom_Proxy'
 GROUP_NAME = '🧩 自定义'
 CUSTOM_CATEGORY_NAME = 'dozee-custom'
 EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
-EXPECTED_RULE_URL = 'https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
+EXPECTED_RULE_URL = 'https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
