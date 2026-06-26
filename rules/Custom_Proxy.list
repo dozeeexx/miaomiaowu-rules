@@ -1,17 +1,18 @@
-# 自定义代理规则：命中后走妙妙屋模板里的「🧩 自定义」策略组。
+# 个人自用的预测市场规则：命中后走「🧩 自定义」策略组。
 #
-# 日常只需要维护这个文件：每行一条 Mihomo/Clash classical 规则。
-# 修改后提交到 GitHub，客户端会按模板里的 interval 自动刷新；也可以在面板手动更新 rule-provider。
-#
-# 预测市场相关（Polymarket / Predict）
+# Polymarket（国际站）
 DOMAIN-SUFFIX,polymarket.com
+DOMAIN,polymarket-upload.s3.us-east-2.amazonaws.com
+#
+# Polymarket US（如用得到）
+DOMAIN-SUFFIX,polymarket.us
+DOMAIN-SUFFIX,polymarketexchange.com
+DOMAIN-SUFFIX,polymarketclearing.com
+DOMAIN,pmx-dev01.us.auth0.com
+DOMAIN,pmx-preprod.us.auth0.com
+DOMAIN,pmx-prod.us.auth0.com
+#
+# Predict.fun
 DOMAIN-SUFFIX,predict.fun
 #
-# 常用写法示例（去掉行首 # 即可启用）：
-# DOMAIN-SUFFIX,example.com
-# DOMAIN,api.example.com
-# DOMAIN-KEYWORD,example
-# IP-CIDR,1.2.3.4/32,no-resolve
-# IP-CIDR6,2001:db8::/32,no-resolve
-#
-# 注意：如果仓库是 public，这里写的域名也会公开。不要放订阅地址、节点、token、cookie。
+# 以后继续补充其它预测市场站点时，只在这里加行。

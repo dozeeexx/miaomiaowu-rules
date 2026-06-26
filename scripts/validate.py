@@ -21,6 +21,17 @@ GROUP_NAME = '🧩 自定义'
 CUSTOM_CATEGORY_NAME = 'dozee-custom'
 EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
 EXPECTED_RULE_URL = 'https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
+REQUIRED_RULES = [
+    'DOMAIN-SUFFIX,polymarket.com',
+    'DOMAIN,polymarket-upload.s3.us-east-2.amazonaws.com',
+    'DOMAIN-SUFFIX,polymarket.us',
+    'DOMAIN-SUFFIX,polymarketexchange.com',
+    'DOMAIN-SUFFIX,polymarketclearing.com',
+    'DOMAIN,pmx-dev01.us.auth0.com',
+    'DOMAIN,pmx-preprod.us.auth0.com',
+    'DOMAIN,pmx-prod.us.auth0.com',
+    'DOMAIN-SUFFIX,predict.fun',
+]
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -76,6 +87,8 @@ def validate_proxy_groups() -> None:
 def validate_rules() -> None:
     if not RULE_FILE.exists():
         fail(f'missing {RULE_FILE}')
+
+    seen_rules: list[str] = []
     for lineno, raw in enumerate(RULE_FILE.read_text(encoding='utf-8').splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith('#'):
@@ -87,6 +100,11 @@ def validate_rules() -> None:
             fail(f'{RULE_FILE}:{lineno} unsupported rule type {parts[0]!r}: {line}')
         if parts[0] in {'IP-CIDR', 'IP-CIDR6'} and len(parts) == 2:
             print(f'WARN: {RULE_FILE}:{lineno} IP rule can add ,no-resolve: {line}')
+        seen_rules.append(line)
+
+    missing = [rule for rule in REQUIRED_RULES if rule not in seen_rules]
+    if missing:
+        fail(f'{RULE_FILE} missing required prediction-market rules: {missing}')
 
 
 def validate_template(path: Path) -> None:
