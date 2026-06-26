@@ -66,6 +66,23 @@ volumes:
 
 规则顺序上，`Dozee_Custom_Proxy` 放在 private/LAN 直连之后、其他通用规则之前，所以你的自定义规则优先级比较高。
 
+## 规则选择界面如何显示
+
+妙妙屋的「生成订阅 → 订阅链接生成器 → 自定义规则」页面，是从 `proxy_groups_source_url` 读取分类列表的。
+
+我已经把仓库里的 `configs/proxy-groups.json` 加入了一个新的分类：
+
+- `name`: `dozee-custom`
+- `label`: `自定义`
+- `emoji`: `🧩`
+- `group_label`: `🧩 自定义`
+- `site_rules[0].key`: `Dozee_Custom_Proxy`
+- `site_rules[0].url`: `https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list`
+
+所以只要在妙妙屋里把系统配置里的 `proxy_groups_source_url` 指向这个文件，规则选择界面里就会出现一个可勾选的「🧩 自定义」分类，和广告拦截、AI 服务、Github、微软服务这些类别一样。
+
+当前这台 VPS 上我已经同步过一次代理组配置，所以 API 已经能看到这个分类；如果你后面改了 `configs/proxy-groups.json`，再点一次「同步代理组」即可。
+
 ## 隐私提醒
 
 如果这个仓库是 public，`rules/Custom_Proxy.list` 里的域名会公开。不要提交：
