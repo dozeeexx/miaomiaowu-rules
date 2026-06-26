@@ -1,0 +1,13 @@
+# 自定义代理规则：命中后走妙妙屋模板里的「🧩 自定义」策略组。
+#
+# 日常只需要维护这个文件：每行一条 Mihomo/Clash classical 规则。
+# 修改后提交到 GitHub，客户端会按模板里的 interval 自动刷新；也可以在面板手动更新 rule-provider。
+#
+# 常用写法示例（去掉行首 # 即可启用）：
+# DOMAIN-SUFFIX,example.com
+# DOMAIN,api.example.com
+# DOMAIN-KEYWORD,example
+# IP-CIDR,1.2.3.4/32,no-resolve
+# IP-CIDR6,2001:db8::/32,no-resolve
+#
+# 注意：如果仓库是 public，这里写的域名也会公开。不要放订阅地址、节点、token、cookie。
