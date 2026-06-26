@@ -216,7 +216,7 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
+    url: https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
     path: ./providers/Dozee_Custom_Proxy.list
     interval: 3600
   Custom_Direct_Domain:

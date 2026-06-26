@@ -18,7 +18,7 @@ TEMPLATE_FILES = [
 PROVIDER_NAME = 'Dozee_Custom_Proxy'
 GROUP_NAME = '🧩 自定义'
 EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
-EXPECTED_URL = 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list'
+EXPECTED_URL = 'https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list'
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',

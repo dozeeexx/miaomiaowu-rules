@@ -26,7 +26,7 @@ IP-CIDR,1.2.3.4/32,no-resolve
 Raw 地址：
 
 ```text
-https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
+https://testingcf.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
 ```
 
 ## 妙妙屋怎么用
