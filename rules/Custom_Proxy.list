@@ -3,6 +3,10 @@
 # 日常只需要维护这个文件：每行一条 Mihomo/Clash classical 规则。
 # 修改后提交到 GitHub，客户端会按模板里的 interval 自动刷新；也可以在面板手动更新 rule-provider。
 #
+# 预测市场相关（Polymarket / Predict）
+DOMAIN-SUFFIX,polymarket.com
+DOMAIN-SUFFIX,predict.fun
+#
 # 常用写法示例（去掉行首 # 即可启用）：
 # DOMAIN-SUFFIX,example.com
 # DOMAIN,api.example.com
