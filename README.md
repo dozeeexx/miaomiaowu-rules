@@ -7,7 +7,7 @@
 Raw 地址：
 
 ```text
-https://cdn.jsdelivr.net/gh/dozeeexx/miaomiaowu-rules@main/rules/Custom_Proxy.list
+https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
 ```
 
 如果要在妙妙屋的规则选择界面里显示 `🧩 自定义`，把 `proxy_groups_source_url` 指向本仓库的 `configs/proxy-groups.json` 即可。
