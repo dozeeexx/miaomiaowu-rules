@@ -24,12 +24,20 @@ EXPECTED_RULE_URL = 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules
 REQUIRED_RULES = [
     'DOMAIN-SUFFIX,polymarket.com',
     'DOMAIN,polymarket-upload.s3.us-east-2.amazonaws.com',
+    'DOMAIN-SUFFIX,polymarket.sh',
     'DOMAIN-SUFFIX,polymarket.us',
     'DOMAIN-SUFFIX,polymarketexchange.com',
     'DOMAIN-SUFFIX,polymarketclearing.com',
     'DOMAIN,pmx-dev01.us.auth0.com',
     'DOMAIN,pmx-preprod.us.auth0.com',
     'DOMAIN,pmx-prod.us.auth0.com',
+    'DOMAIN-SUFFIX,magic.link',
+    'DOMAIN-SUFFIX,intercom.io',
+    'DOMAIN-SUFFIX,intercomcdn.com',
+    'DOMAIN-SUFFIX,intercomusercontent.com',
+    'DOMAIN-SUFFIX,intercomassets.com',
+    'DOMAIN-SUFFIX,intercom-messenger.com',
+    'DOMAIN-SUFFIX,intercom-attachments.com',
     'DOMAIN-SUFFIX,predict.fun',
 ]
 
