@@ -5,7 +5,7 @@
     "emoji": "🛑",
     "rule_name": "广告拦截",
     "group_label": "🛑 广告拦截",
-    "presets": ["minimal", "balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -25,7 +25,7 @@
     "emoji": "📺",
     "rule_name": "哔哩哔哩",
     "group_label": "📺 哔哩哔哩",
-    "presets": ["minimal", "balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -95,7 +95,7 @@
     "emoji": "🪟",
     "rule_name": "微软服务",
     "group_label": "🪟 微软服务",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -105,7 +105,7 @@
     "emoji": "🍎",
     "rule_name": "苹果服务",
     "group_label": "🍎 苹果服务",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -115,7 +115,7 @@
     "emoji": "🌐",
     "rule_name": "社交媒体",
     "group_label": "🌐 社交媒体",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -125,7 +125,7 @@
     "emoji": "📺",
     "rule_name": "流媒体",
     "group_label": "📺 流媒体",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -135,7 +135,7 @@
     "emoji": "🎮",
     "rule_name": "游戏平台",
     "group_label": "🎮 游戏平台",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -145,7 +145,7 @@
     "emoji": "📚",
     "rule_name": "教育资源",
     "group_label": "📚 教育资源",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -165,7 +165,7 @@
     "emoji": "☁️",
     "rule_name": "云服务",
     "group_label": "☁️ 云服务",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -175,7 +175,7 @@
     "emoji": "🎵",
     "rule_name": "Spotify",
     "group_label": "🎵 Spotify",
-    "presets": ["balanced", "comprehensive"],
+    "presets": ["comprehensive"],
     "site_rules": [],
     "ip_rules": []
   },
@@ -205,7 +205,7 @@
     "emoji": "🔀",
     "rule_name": "代理服务",
     "group_label": "🔀 代理服务",
-    "presets": ["balanced", "comprehensive"],
+    "presets": [],
     "site_rules": [],
     "ip_rules": []
   },
