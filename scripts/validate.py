@@ -19,8 +19,22 @@ TEMPLATE_FILES = [
 PROVIDER_NAME = 'Dozee_Custom_Proxy'
 GROUP_NAME = '🧩 自定义'
 CUSTOM_CATEGORY_NAME = 'dozee-custom'
+FAKE_IP_TEMPLATE_NAME = 'dozee_fake_ip__v3.yaml'
 EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
 EXPECTED_RULE_URL = 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list'
+EXPECTED_FAKE_IP_DNS = {
+    'prefer-h3': True,
+    'enhanced-mode': 'fake-ip',
+    'default-nameserver': ['223.5.5.5', '119.29.29.29'],
+    'nameserver': ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'],
+    'fallback': ['https://1.1.1.1/dns-query', 'https://dns.google/dns-query'],
+    'nameserver-policy-key': 'geosite:cn,private,apple,steam,onedrive,category-games@cn',
+    'nameserver-policy': ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'],
+    'fallback-filter-geoip': True,
+    'fallback-filter-geoip-code': 'CN',
+    'proxy-server-nameserver': ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'],
+    'fake-ip-filter': ['+.lan', '+.local', '+.example.com', 'localhost.ptlogin2.qq.com'],
+}
 REQUIRED_RULES = [
     'DOMAIN-SUFFIX,polymarket.com',
     'DOMAIN,polymarket-upload.s3.us-east-2.amazonaws.com',
@@ -141,6 +155,31 @@ def validate_template(path: Path) -> None:
         fail(f'{path} provider {PROVIDER_NAME} format should be text')
     if provider.get('url') != EXPECTED_RULE_URL:
         fail(f'{path} provider {PROVIDER_NAME} url mismatch: {provider.get("url")}')
+
+    if path.name == FAKE_IP_TEMPLATE_NAME:
+        dns = data.get('dns') or {}
+        if dns.get('enable') is not True:
+            fail(f'{path} fake-ip dns should be enabled')
+        for key, expected in [
+            ('prefer-h3', EXPECTED_FAKE_IP_DNS['prefer-h3']),
+            ('enhanced-mode', EXPECTED_FAKE_IP_DNS['enhanced-mode']),
+            ('default-nameserver', EXPECTED_FAKE_IP_DNS['default-nameserver']),
+            ('nameserver', EXPECTED_FAKE_IP_DNS['nameserver']),
+            ('fallback', EXPECTED_FAKE_IP_DNS['fallback']),
+            ('proxy-server-nameserver', EXPECTED_FAKE_IP_DNS['proxy-server-nameserver']),
+            ('fake-ip-filter', EXPECTED_FAKE_IP_DNS['fake-ip-filter']),
+        ]:
+            if dns.get(key) != expected:
+                fail(f'{path} fake-ip dns {key} mismatch: {dns.get(key)}')
+        policy = dns.get('nameserver-policy') or {}
+        policy_key = EXPECTED_FAKE_IP_DNS['nameserver-policy-key']
+        if policy.get(policy_key) != EXPECTED_FAKE_IP_DNS['nameserver-policy']:
+            fail(f'{path} fake-ip dns nameserver-policy mismatch: {policy.get(policy_key)}')
+        fallback_filter = dns.get('fallback-filter') or {}
+        if fallback_filter.get('geoip') is not EXPECTED_FAKE_IP_DNS['fallback-filter-geoip']:
+            fail(f'{path} fake-ip dns fallback-filter geoip mismatch: {fallback_filter.get("geoip")}')
+        if fallback_filter.get('geoip-code') != EXPECTED_FAKE_IP_DNS['fallback-filter-geoip-code']:
+            fail(f'{path} fake-ip dns fallback-filter geoip-code mismatch: {fallback_filter.get("geoip-code")}')
 
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('GEOIP,private,')), -1)
     custom_index = rules.index(EXPECTED_RULE)
