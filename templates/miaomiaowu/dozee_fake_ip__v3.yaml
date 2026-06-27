@@ -4,35 +4,27 @@
 mode: rule
 dns:
   enable: true
-  prefer-h3: true
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-  fallback:
-    - https://1.1.1.1/dns-query
-    - https://dns.google/dns-query
+    - tls://8.8.8.8
+    - tls://1.1.1.1
+  direct-nameserver:
+    - https://120.53.53.53/dns-query
   nameserver-policy:
-    geosite:cn,private,apple,steam,onedrive,category-games@cn:
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
+    geosite:cn:
+      - 223.5.5.5
+      - 119.29.29.29
   proxy-server-nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://120.53.53.53/dns-query
   ipv6: false
   listen: 0.0.0.0:7874
+  default-nameserver:
+    - tls://1.12.12.12
   fake-ip-filter:
     - +.lan
     - +.local
     - +.example.com
-    - localhost.ptlogin2.qq.com
 proxies: null
 proxy-groups:
   - name: "🚀 手动选择"
@@ -237,36 +229,36 @@ rule-providers:
   Custom_Direct_Domain:
     type: http
     behavior: domain
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.yaml
     path: ./providers/Custom_Direct_Domain.yaml
     interval: 28800
   Custom_Direct_Classical_IP:
     type: http
     behavior: classical
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Classical_IP.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Classical_IP.yaml
     path: ./providers/Custom_Direct_Classical_IP.yaml
     interval: 28800
   Custom_Proxy_Domain:
     type: http
     behavior: domain
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Domain.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Domain.yaml
     path: ./providers/Custom_Proxy_Domain.yaml
     interval: 28800
   Custom_Proxy_Classical_IP:
     type: http
     behavior: classical
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Classical_IP.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Classical_IP.yaml
     path: ./providers/Custom_Proxy_Classical_IP.yaml
     interval: 28800
   Steam_CDN_Classical:
     type: http
     behavior: classical
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Steam_CDN_Classical.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Steam_CDN_Classical.yaml
     path: ./providers/Steam_CDN_Classical.yaml
     interval: 2880
   Custom_Port_Direct:
     type: http
     behavior: classical
-    url: https://cdn.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Port_Direct.yaml
+    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Port_Direct.yaml
     path: ./providers/Custom_Port_Direct.yaml
     interval: 28800
