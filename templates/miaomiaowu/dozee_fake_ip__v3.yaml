@@ -1,6 +1,3 @@
-# dozeeexx miaomiaowu custom template
-# Based on aaa.yaml and tailored for miaomiaowu V3 fake-ip template.
-# Daily maintenance: edit rules/Custom_Proxy.list in https://github.com/dozeeexx/miaomiaowu-rules
 mode: rule
 dns:
   enable: true
@@ -255,144 +252,168 @@ rule-providers:
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-!cn.mrs
     path: ./ruleset/category-ai-!cn.mrs
     interval: 86400
+    format: mrs
   youtube:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs
     path: ./ruleset/youtube.mrs
     interval: 86400
+    format: mrs
   google:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs
     path: ./ruleset/google.mrs
     interval: 86400
+    format: mrs
   telegram:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/telegram.mrs
     path: ./ruleset/telegram.mrs
     interval: 86400
+    format: mrs
   geolocation-cn:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-cn.mrs
     path: ./ruleset/geolocation-cn.mrs
     interval: 86400
+    format: mrs
   cn:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs
     path: ./ruleset/cn.mrs
     interval: 86400
+    format: mrs
   github:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github.mrs
     path: ./ruleset/github.mrs
     interval: 86400
+    format: mrs
   gitlab:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gitlab.mrs
     path: ./ruleset/gitlab.mrs
     interval: 86400
+    format: mrs
   facebook:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs
     path: ./ruleset/facebook.mrs
     interval: 86400
+    format: mrs
   instagram:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs
     path: ./ruleset/instagram.mrs
     interval: 86400
+    format: mrs
   twitter:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitter.mrs
     path: ./ruleset/twitter.mrs
     interval: 86400
+    format: mrs
   tiktok:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tiktok.mrs
     path: ./ruleset/tiktok.mrs
     interval: 86400
+    format: mrs
   linkedin:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/linkedin.mrs
     path: ./ruleset/linkedin.mrs
     interval: 86400
+    format: mrs
   netflix:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netflix.mrs
     path: ./ruleset/netflix.mrs
     interval: 86400
+    format: mrs
   hulu:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hulu.mrs
     path: ./ruleset/hulu.mrs
     interval: 86400
+    format: mrs
   disney:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/disney.mrs
     path: ./ruleset/disney.mrs
     interval: 86400
+    format: mrs
   hbo:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hbo.mrs
     path: ./ruleset/hbo.mrs
     interval: 86400
+    format: mrs
   amazon:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amazon.mrs
     path: ./ruleset/amazon.mrs
     interval: 86400
+    format: mrs
   bahamut:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bahamut.mrs
     path: ./ruleset/bahamut.mrs
     interval: 86400
+    format: mrs
   geolocation-!cn:
     type: http
     behavior: domain
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs
     path: ./ruleset/geolocation-!cn.mrs
     interval: 86400
+    format: mrs
   google-ip:
     type: http
     behavior: ipcidr
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs
     path: ./ruleset/google-ip.mrs
     interval: 86400
+    format: mrs
   private-ip:
     type: http
     behavior: ipcidr
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs
     path: ./ruleset/private-ip.mrs
     interval: 86400
+    format: mrs
   cn-ip:
     type: http
     behavior: ipcidr
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs
     path: ./ruleset/cn-ip.mrs
     interval: 86400
+    format: mrs
   telegram-ip:
     type: http
     behavior: ipcidr
     url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs
     path: ./ruleset/telegram-ip.mrs
     interval: 86400
+    format: mrs
   Dozee_Custom_Proxy:
     type: http
     behavior: classical

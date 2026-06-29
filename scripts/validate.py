@@ -69,6 +69,15 @@ def validate_template() -> None:
     if provider.get('url') != EXPECTED_URL:
         fail(f'{TEMPLATE_FILE} provider {PROVIDER_NAME} url mismatch: {provider.get("url")}')
 
+    for name, rp in providers.items():
+        if not isinstance(rp, dict):
+            fail(f'{TEMPLATE_FILE} rule-provider {name} should be a mapping')
+        url = rp.get('url', '')
+        path = rp.get('path', '')
+        if (isinstance(url, str) and url.endswith('.mrs')) or (isinstance(path, str) and path.endswith('.mrs')):
+            if rp.get('format') != 'mrs':
+                fail(f'{TEMPLATE_FILE} rule-provider {name} uses .mrs but format is not mrs')
+
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and 'private' in r), -1)
     custom_index = rules.index(EXPECTED_RULE)
     match_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('MATCH,')), len(rules))
