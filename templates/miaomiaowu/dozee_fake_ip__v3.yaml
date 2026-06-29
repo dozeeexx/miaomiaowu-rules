@@ -1,224 +1,398 @@
 # dozeeexx miaomiaowu custom template
-# Based on iluobei/miaomiaowu fake_ip__v3.yaml; adds 🧩 自定义 via Dozee_Custom_Proxy.
+# Based on aaa.yaml and tailored for miaomiaowu V3 fake-ip template.
 # Daily maintenance: edit rules/Custom_Proxy.list in https://github.com/dozeeexx/miaomiaowu-rules
 mode: rule
 dns:
   enable: true
+  respect-rules: true
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   nameserver:
-    - tls://8.8.8.8
-    - tls://1.1.1.1
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
   direct-nameserver:
-    - https://120.53.53.53/dns-query
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
   nameserver-policy:
-    geosite:cn:
-      - 223.5.5.5
-      - 119.29.29.29
-  proxy-server-nameserver:
+    geosite:cn,private:
     - https://120.53.53.53/dns-query
-  ipv6: false
+    - https://223.5.5.5/dns-query
+    geosite:geolocation-!cn:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  proxy-server-nameserver:
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
+  ipv6: true
   listen: 0.0.0.0:7874
   default-nameserver:
-    - tls://1.12.12.12
+  - 223.5.5.5
+  - 119.29.29.29
   fake-ip-filter:
-    - +.lan
-    - +.local
-    - +.example.com
+  - +.lan
+  - +.local
+  - +.example.com
 proxies: null
 proxy-groups:
-  - name: "🚀 手动选择"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: ♻️ 自动选择
-    type: url-test
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    tolerance: 50
-  - name: "🌠 中转节点"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    filter: 中转|CO|co
-    proxies:
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🌄 落地节点"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    filter: LD|落地|Bage|bage|jinx|ctc|Jinx|JINX|CTC|Luodi|luodi|LUODI|zouter|legend|Alice|alice
-    proxies:
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-    dialer-proxy-group: "🌠 中转节点"
-  - name: "🧩 自定义"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - "🌠 中转节点"
-      - "🌄 落地节点"
-      - "🎯 全球直连"
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🚀 GitHub"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - "🎯 全球直连"
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "📢 谷歌FCM"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - "🎯 全球直连"
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🇬 谷歌服务"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - "🎯 全球直连"
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🍎 苹果服务"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🎯 全球直连"
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: Ⓜ️ 微软服务
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🎯 全球直连"
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🎮 游戏平台"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🎯 全球直连"
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🎮 Steam"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🎯 全球直连"
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🚀 测速工具"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🎯 全球直连"
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🐟 漏网之鱼"
-    type: select
-    include-all: true
-    include-all-proxies: true
-    include-all-providers: true
-    proxies:
-      - "🚀 手动选择"
-      - ♻️ 自动选择
-      - "🎯 全球直连"
-      - __PROXY_PROVIDERS__
-      - __PROXY_NODES__
-  - name: "🔀 非标端口"
-    type: select
-    proxies:
-      - "🐟 遵循规则"
-      - "🎯 全球直连"
-  - name: "🎯 全球直连"
-    type: select
-    proxies:
-      - DIRECT
-  - name: "🐟 遵循规则"
-    type: select
-    proxies:
-      - "🐟 漏网之鱼"
+- name: 🚀 节点选择
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - ♻️ 自动选择
+  - 🌠 中转节点
+  - 🌄 落地节点
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  - DIRECT
+  - REJECT
+- name: ♻️ 自动选择
+  type: url-test
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+- name: 🌠 中转节点
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  filter: 中转|relay|RELAY|Relay|entry|ENTRY|Entry
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌄 落地节点
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  filter: 落地|exit|EXIT|Exit|egress|EGRESS|Egress
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  dialer-proxy-group: 🌠 中转节点
+- name: 💬 AI 服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 📹 油管视频
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🔍 谷歌服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🏠 私有网络
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🔒 国内服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 📲 电报消息
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🐱 Github
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌐 社交媒体
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🎬 流媒体
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌐 非中国
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🧩 自定义
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🐟 漏网之鱼
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
 rules:
-  - "GEOSITE,private,🎯 全球直连"
-  - "GEOIP,private,🎯 全球直连,no-resolve"
-  - "RULE-SET,Dozee_Custom_Proxy,🧩 自定义"
-  - "RULE-SET,Custom_Direct_Domain,🎯 全球直连"
-  - "RULE-SET,Custom_Direct_Classical_IP,🎯 全球直连"
-  - "RULE-SET,Custom_Proxy_Domain,🚀 手动选择"
-  - "RULE-SET,Custom_Proxy_Classical_IP,🚀 手动选择"
-  - "GEOSITE,google-cn,🎯 全球直连"
-  - "GEOSITE,category-games@cn,🎯 全球直连"
-  - "RULE-SET,Steam_CDN_Classical,🎯 全球直连"
-  - "GEOSITE,category-game-platforms-download,🎯 全球直连"
-  - "GEOSITE,category-public-tracker,🎯 全球直连"
-  - "GEOSITE,github,🚀 GitHub"
-  - "GEOSITE,category-speedtest,🚀 测速工具"
-  - "GEOSITE,apple,🍎 苹果服务"
-  - "GEOSITE,steam,🎮 Steam"
-  - GEOSITE,microsoft,Ⓜ️ 微软服务
-  - "GEOSITE,googlefcm,📢 谷歌FCM"
-  - "GEOSITE,google,🇬 谷歌服务"
-  - "GEOSITE,gfw,🚀 手动选择"
-  - "GEOSITE,category-games,🎮 游戏平台"
-  - "GEOIP,google,🇬 谷歌服务,no-resolve"
-  - "GEOSITE,cn,🎯 全球直连"
-  - "GEOIP,cn,🎯 全球直连,no-resolve"
-  - "RULE-SET,Custom_Port_Direct,🔀 非标端口"
-  - "MATCH,🐟 漏网之鱼"
+- RULE-SET,private-ip,🏠 私有网络,no-resolve
+- RULE-SET,geolocation-cn,🔒 国内服务
+- RULE-SET,cn,🔒 国内服务
+- RULE-SET,cn-ip,🔒 国内服务,no-resolve
+- RULE-SET,Dozee_Custom_Proxy,🧩 自定义
+- RULE-SET,category-ai-!cn,💬 AI 服务
+- RULE-SET,youtube,📹 油管视频
+- RULE-SET,google,🔍 谷歌服务
+- RULE-SET,telegram,📲 电报消息
+- RULE-SET,github,🐱 Github
+- RULE-SET,gitlab,🐱 Github
+- RULE-SET,facebook,🌐 社交媒体
+- RULE-SET,instagram,🌐 社交媒体
+- RULE-SET,twitter,🌐 社交媒体
+- RULE-SET,tiktok,🌐 社交媒体
+- RULE-SET,linkedin,🌐 社交媒体
+- RULE-SET,netflix,🎬 流媒体
+- RULE-SET,hulu,🎬 流媒体
+- RULE-SET,disney,🎬 流媒体
+- RULE-SET,hbo,🎬 流媒体
+- RULE-SET,amazon,🎬 流媒体
+- RULE-SET,bahamut,🎬 流媒体
+- RULE-SET,google-ip,🔍 谷歌服务,no-resolve
+- RULE-SET,telegram-ip,📲 电报消息,no-resolve
+- RULE-SET,geolocation-!cn,🌐 非中国
+- MATCH,🐟 漏网之鱼
 rule-providers:
+  category-ai-!cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-!cn.mrs
+    path: ./ruleset/category-ai-!cn.mrs
+    interval: 86400
+  youtube:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs
+    path: ./ruleset/youtube.mrs
+    interval: 86400
+  google:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs
+    path: ./ruleset/google.mrs
+    interval: 86400
+  telegram:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/telegram.mrs
+    path: ./ruleset/telegram.mrs
+    interval: 86400
+  geolocation-cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-cn.mrs
+    path: ./ruleset/geolocation-cn.mrs
+    interval: 86400
+  cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs
+    path: ./ruleset/cn.mrs
+    interval: 86400
+  github:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github.mrs
+    path: ./ruleset/github.mrs
+    interval: 86400
+  gitlab:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gitlab.mrs
+    path: ./ruleset/gitlab.mrs
+    interval: 86400
+  facebook:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs
+    path: ./ruleset/facebook.mrs
+    interval: 86400
+  instagram:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs
+    path: ./ruleset/instagram.mrs
+    interval: 86400
+  twitter:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitter.mrs
+    path: ./ruleset/twitter.mrs
+    interval: 86400
+  tiktok:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tiktok.mrs
+    path: ./ruleset/tiktok.mrs
+    interval: 86400
+  linkedin:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/linkedin.mrs
+    path: ./ruleset/linkedin.mrs
+    interval: 86400
+  netflix:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netflix.mrs
+    path: ./ruleset/netflix.mrs
+    interval: 86400
+  hulu:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hulu.mrs
+    path: ./ruleset/hulu.mrs
+    interval: 86400
+  disney:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/disney.mrs
+    path: ./ruleset/disney.mrs
+    interval: 86400
+  hbo:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hbo.mrs
+    path: ./ruleset/hbo.mrs
+    interval: 86400
+  amazon:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amazon.mrs
+    path: ./ruleset/amazon.mrs
+    interval: 86400
+  bahamut:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bahamut.mrs
+    path: ./ruleset/bahamut.mrs
+    interval: 86400
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs
+    path: ./ruleset/geolocation-!cn.mrs
+    interval: 86400
+  google-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs
+    path: ./ruleset/google-ip.mrs
+    interval: 86400
+  private-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs
+    path: ./ruleset/private-ip.mrs
+    interval: 86400
+  cn-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs
+    path: ./ruleset/cn-ip.mrs
+    interval: 86400
+  telegram-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs
+    path: ./ruleset/telegram-ip.mrs
+    interval: 86400
   Dozee_Custom_Proxy:
     type: http
     behavior: classical
@@ -226,39 +400,3 @@ rule-providers:
     url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
     path: ./providers/Dozee_Custom_Proxy.list
     interval: 3600
-  Custom_Direct_Domain:
-    type: http
-    behavior: domain
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.yaml
-    path: ./providers/Custom_Direct_Domain.yaml
-    interval: 28800
-  Custom_Direct_Classical_IP:
-    type: http
-    behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Direct_Classical_IP.yaml
-    path: ./providers/Custom_Direct_Classical_IP.yaml
-    interval: 28800
-  Custom_Proxy_Domain:
-    type: http
-    behavior: domain
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Domain.yaml
-    path: ./providers/Custom_Proxy_Domain.yaml
-    interval: 28800
-  Custom_Proxy_Classical_IP:
-    type: http
-    behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Proxy_Classical_IP.yaml
-    path: ./providers/Custom_Proxy_Classical_IP.yaml
-    interval: 28800
-  Steam_CDN_Classical:
-    type: http
-    behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Steam_CDN_Classical.yaml
-    path: ./providers/Steam_CDN_Classical.yaml
-    interval: 2880
-  Custom_Port_Direct:
-    type: http
-    behavior: classical
-    url: https://testingcf.jsdelivr.net/gh/iluobei/Custom_OpenClash_Rules@main/rule/Custom_Port_Direct.yaml
-    path: ./providers/Custom_Port_Direct.yaml
-    interval: 28800
