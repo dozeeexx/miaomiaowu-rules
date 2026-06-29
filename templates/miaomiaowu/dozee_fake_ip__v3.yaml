@@ -206,6 +206,19 @@ proxy-groups:
   - REJECT
   - __PROXY_PROVIDERS__
   - __PROXY_NODES__
+- name: 📈 预测市场
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
 - name: 🐟 漏网之鱼
   type: select
   include-all: true
@@ -224,6 +237,7 @@ rules:
 - RULE-SET,cn,🔒 国内服务
 - RULE-SET,cn-ip,🔒 国内服务,no-resolve
 - RULE-SET,Dozee_Custom_Proxy,🧩 自定义
+- RULE-SET,Dozee_Prediction_Market,📈 预测市场
 - RULE-SET,category-ai-!cn,💬 AI 服务
 - RULE-SET,youtube,📹 油管视频
 - RULE-SET,google,🔍 谷歌服务
@@ -420,4 +434,11 @@ rule-providers:
     format: text
     url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
     path: ./providers/Dozee_Custom_Proxy.list
+    interval: 3600
+  Dozee_Prediction_Market:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list
+    path: ./providers/Dozee_Prediction_Market.list
     interval: 3600

@@ -9,12 +9,19 @@ except ImportError:
     sys.exit(2)
 
 ROOT = Path(__file__).resolve().parents[1]
-RULE_FILE = ROOT / 'rules' / 'Custom_Proxy.list'
 TEMPLATE_FILE = ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v3.yaml'
-PROVIDER_NAME = 'Dozee_Custom_Proxy'
-GROUP_NAME = '🧩 自定义'
-EXPECTED_RULE = f'RULE-SET,{PROVIDER_NAME},{GROUP_NAME}'
-EXPECTED_URL = 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list'
+RULE_PROVIDERS = {
+    'Dozee_Custom_Proxy': {
+        'file': ROOT / 'rules' / 'Custom_Proxy.list',
+        'group': '🧩 自定义',
+        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list',
+    },
+    'Dozee_Prediction_Market': {
+        'file': ROOT / 'rules' / 'Prediction_Market.list',
+        'group': '📈 预测市场',
+        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list',
+    },
+}
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -28,18 +35,23 @@ def fail(msg: str) -> None:
     sys.exit(1)
 
 
-def validate_rules() -> None:
-    if not RULE_FILE.exists():
-        fail(f'missing {RULE_FILE}')
-    for lineno, raw in enumerate(RULE_FILE.read_text(encoding='utf-8').splitlines(), 1):
+def validate_rule_file(rule_file: Path) -> None:
+    if not rule_file.exists():
+        fail(f'missing {rule_file}')
+    for lineno, raw in enumerate(rule_file.read_text(encoding='utf-8').splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith('#'):
             continue
         parts = [p.strip() for p in line.split(',')]
         if len(parts) < 2:
-            fail(f'{RULE_FILE}:{lineno} invalid rule, expected TYPE,value: {line}')
+            fail(f'{rule_file}:{lineno} invalid rule, expected TYPE,value: {line}')
         if parts[0] not in ALLOWED_PREFIXES:
-            fail(f'{RULE_FILE}:{lineno} unsupported rule type {parts[0]!r}: {line}')
+            fail(f'{rule_file}:{lineno} unsupported rule type {parts[0]!r}: {line}')
+
+
+def validate_rules() -> None:
+    for provider in RULE_PROVIDERS.values():
+        validate_rule_file(provider['file'])
 
 
 def validate_template() -> None:
@@ -51,23 +63,25 @@ def validate_template() -> None:
 
     groups = data.get('proxy-groups') or []
     group_names = {g.get('name') for g in groups if isinstance(g, dict)}
-    if GROUP_NAME not in group_names:
-        fail(f'{TEMPLATE_FILE} missing proxy group {GROUP_NAME}')
-
     rules = data.get('rules') or []
-    if EXPECTED_RULE not in rules:
-        fail(f'{TEMPLATE_FILE} missing rule {EXPECTED_RULE}')
-
     providers = data.get('rule-providers') or {}
-    if PROVIDER_NAME not in providers:
-        fail(f'{TEMPLATE_FILE} missing rule-provider {PROVIDER_NAME}')
-    provider = providers[PROVIDER_NAME]
-    if provider.get('behavior') != 'classical':
-        fail(f'{TEMPLATE_FILE} provider {PROVIDER_NAME} behavior should be classical')
-    if provider.get('format') != 'text':
-        fail(f'{TEMPLATE_FILE} provider {PROVIDER_NAME} format should be text')
-    if provider.get('url') != EXPECTED_URL:
-        fail(f'{TEMPLATE_FILE} provider {PROVIDER_NAME} url mismatch: {provider.get("url")}')
+
+    for provider_name, expected in RULE_PROVIDERS.items():
+        group_name = expected['group']
+        expected_rule = f'RULE-SET,{provider_name},{group_name}'
+        if group_name not in group_names:
+            fail(f'{TEMPLATE_FILE} missing proxy group {group_name}')
+        if expected_rule not in rules:
+            fail(f'{TEMPLATE_FILE} missing rule {expected_rule}')
+        if provider_name not in providers:
+            fail(f'{TEMPLATE_FILE} missing rule-provider {provider_name}')
+        provider = providers[provider_name]
+        if provider.get('behavior') != 'classical':
+            fail(f'{TEMPLATE_FILE} provider {provider_name} behavior should be classical')
+        if provider.get('format') != 'text':
+            fail(f'{TEMPLATE_FILE} provider {provider_name} format should be text')
+        if provider.get('url') != expected['url']:
+            fail(f'{TEMPLATE_FILE} provider {provider_name} url mismatch: {provider.get("url")}')
 
     for name, rp in providers.items():
         if not isinstance(rp, dict):
@@ -79,12 +93,17 @@ def validate_template() -> None:
                 fail(f'{TEMPLATE_FILE} rule-provider {name} uses .mrs but format is not mrs')
 
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and 'private' in r), -1)
-    custom_index = rules.index(EXPECTED_RULE)
     match_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('MATCH,')), len(rules))
-    if private_index >= 0 and custom_index <= private_index:
-        fail(f'{TEMPLATE_FILE} custom rule should stay after private/LAN direct rules')
-    if custom_index >= match_index:
-        fail(f'{TEMPLATE_FILE} custom rule must be before MATCH')
+    broad_index = next((i for i, r in enumerate(rules) if r == 'RULE-SET,geolocation-!cn,🌐 非中国'), match_index)
+    for provider_name, expected in RULE_PROVIDERS.items():
+        expected_rule = f"RULE-SET,{provider_name},{expected['group']}"
+        rule_index = rules.index(expected_rule)
+        if private_index >= 0 and rule_index <= private_index:
+            fail(f'{TEMPLATE_FILE} {provider_name} rule should stay after private/LAN direct rules')
+        if rule_index >= broad_index:
+            fail(f'{TEMPLATE_FILE} {provider_name} rule must be before broad geolocation-!cn')
+        if rule_index >= match_index:
+            fail(f'{TEMPLATE_FILE} {provider_name} rule must be before MATCH')
 
 
 def main() -> None:

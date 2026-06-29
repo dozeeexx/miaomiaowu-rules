@@ -1,0 +1,38 @@
+# 预测市场规则：命中后走妙妙屋模板里的「📈 预测市场」策略组。
+#
+# 原则：只收预测市场的一方域名、官方 API/静态资源、以及必要钱包/登录基础设施；
+# 不收 Google/X/Discord/GitHub 等已有大类，避免和其他分组抢规则。
+
+# Polymarket 主站 / API / 资源
+DOMAIN-SUFFIX,polymarket.com
+DOMAIN-SUFFIX,polymarket.us
+DOMAIN-SUFFIX,polymarket.dev
+DOMAIN-SUFFIX,polymarket.sh
+DOMAIN,polymarket-upload.s3.us-east-2.amazonaws.com
+
+# Predict.fun 主站 / API / 资源
+DOMAIN-SUFFIX,predict.fun
+DOMAIN-SUFFIX,predict.fail
+
+# 其他常见预测市场平台
+DOMAIN-SUFFIX,kalshi.com
+DOMAIN-SUFFIX,predictit.org
+DOMAIN-SUFFIX,manifold.markets
+DOMAIN-SUFFIX,metaculus.com
+DOMAIN-SUFFIX,limitless.exchange
+DOMAIN-SUFFIX,opinion.trade
+
+# 预测市场常用登录 / 钱包 / 链上交互基础设施
+DOMAIN,auth.privy.io
+DOMAIN,api.privy.io
+DOMAIN,auth.magic.link
+DOMAIN,sdk-cdn.fun.xyz
+DOMAIN,data-api.fun.xyz
+DOMAIN,rpc.walletconnect.org
+DOMAIN,relay.walletconnect.com
+DOMAIN,polygon-mainnet.g.alchemy.com
+DOMAIN,polygon-rpc.com
+DOMAIN,polygon.drpc.org
+DOMAIN,polygon-bor-rpc.publicnode.com
+DOMAIN,56.rpc.thirdweb.com
+DOMAIN,api.moonpay.com
