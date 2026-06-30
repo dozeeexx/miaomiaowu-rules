@@ -68,14 +68,17 @@ def validate_template() -> None:
     dns = data.get('dns') or {}
     nameserver_policy = dns.get('nameserver-policy') or {}
 
-    for play_domain in ('+.xn--ngstr-lra8j.com', 'services.googleapis.cn', 'clientservices.googleapis.com'):
+    for play_domain in ('+.xn--ngstr-lra8j.com', 'services.googleapis.cn', '+.services.googleapis.cn', 'clientservices.googleapis.com', 'connectivitycheck.gstatic.com', 'beacons.gvt2.com', 'beacons.gcp.gvt2.com'):
         if play_domain not in nameserver_policy:
             fail(f'{TEMPLATE_FILE} missing DNS policy for Google Play domain {play_domain}')
 
     for play_rule in (
         'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT',
-        'DOMAIN,services.googleapis.cn,DIRECT',
+        'DOMAIN-SUFFIX,services.googleapis.cn,DIRECT',
         'DOMAIN,clientservices.googleapis.com,DIRECT',
+        'DOMAIN,connectivitycheck.gstatic.com,DIRECT',
+        'DOMAIN,beacons.gvt2.com,DIRECT',
+        'DOMAIN,beacons.gcp.gvt2.com,DIRECT',
     ):
         if play_rule not in rules:
             fail(f'{TEMPLATE_FILE} missing Google Play direct rule {play_rule}')
