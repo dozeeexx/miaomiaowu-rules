@@ -238,6 +238,7 @@ rules:
 - RULE-SET,cn-ip,🔒 国内服务,no-resolve
 - RULE-SET,Dozee_Custom_Proxy,🧩 自定义
 - RULE-SET,Dozee_Prediction_Market,📈 预测市场
+- AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
 - RULE-SET,category-ai-!cn,💬 AI 服务
 - RULE-SET,youtube,📹 油管视频
 - RULE-SET,google,🔍 谷歌服务

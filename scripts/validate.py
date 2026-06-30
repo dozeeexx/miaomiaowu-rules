@@ -95,6 +95,14 @@ def validate_template() -> None:
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and 'private' in r), -1)
     match_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('MATCH,')), len(rules))
     broad_index = next((i for i, r in enumerate(rules) if r == 'RULE-SET,geolocation-!cn,🌐 非中国'), match_index)
+    google_quic_reject = 'AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT'
+    google_rule = 'RULE-SET,google,🔍 谷歌服务'
+    if google_quic_reject not in rules:
+        fail(f'{TEMPLATE_FILE} missing Google QUIC reject rule')
+    if google_rule not in rules:
+        fail(f'{TEMPLATE_FILE} missing Google service rule')
+    if rules.index(google_quic_reject) >= rules.index(google_rule):
+        fail(f'{TEMPLATE_FILE} Google QUIC reject rule must stay before Google service rule')
     for provider_name, expected in RULE_PROVIDERS.items():
         expected_rule = f"RULE-SET,{provider_name},{expected['group']}"
         rule_index = rules.index(expected_rule)
