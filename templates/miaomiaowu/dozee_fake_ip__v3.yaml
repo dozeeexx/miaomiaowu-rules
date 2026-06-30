@@ -11,6 +11,15 @@ dns:
   - https://120.53.53.53/dns-query
   - https://223.5.5.5/dns-query
   nameserver-policy:
+    +.xn--ngstr-lra8j.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    services.googleapis.cn:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    clientservices.googleapis.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
     geosite:cn,private:
     - https://120.53.53.53/dns-query
     - https://223.5.5.5/dns-query
@@ -236,6 +245,9 @@ rules:
 - RULE-SET,geolocation-cn,🔒 国内服务
 - RULE-SET,cn,🔒 国内服务
 - RULE-SET,cn-ip,🔒 国内服务,no-resolve
+- DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT
+- DOMAIN,services.googleapis.cn,DIRECT
+- DOMAIN,clientservices.googleapis.com,DIRECT
 - RULE-SET,Dozee_Custom_Proxy,🧩 自定义
 - RULE-SET,Dozee_Prediction_Market,📈 预测市场
 - AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT

@@ -65,6 +65,20 @@ def validate_template() -> None:
     group_names = {g.get('name') for g in groups if isinstance(g, dict)}
     rules = data.get('rules') or []
     providers = data.get('rule-providers') or {}
+    dns = data.get('dns') or {}
+    nameserver_policy = dns.get('nameserver-policy') or {}
+
+    for play_domain in ('+.xn--ngstr-lra8j.com', 'services.googleapis.cn', 'clientservices.googleapis.com'):
+        if play_domain not in nameserver_policy:
+            fail(f'{TEMPLATE_FILE} missing DNS policy for Google Play domain {play_domain}')
+
+    for play_rule in (
+        'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT',
+        'DOMAIN,services.googleapis.cn,DIRECT',
+        'DOMAIN,clientservices.googleapis.com,DIRECT',
+    ):
+        if play_rule not in rules:
+            fail(f'{TEMPLATE_FILE} missing Google Play direct rule {play_rule}')
 
     for provider_name, expected in RULE_PROVIDERS.items():
         group_name = expected['group']
