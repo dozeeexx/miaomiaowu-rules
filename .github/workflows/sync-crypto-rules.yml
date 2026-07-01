@@ -2,8 +2,8 @@ name: Sync crypto/Web3 rules
 
 on:
   schedule:
-    # 10:17 Beijing time daily. GitHub Actions schedules use UTC.
-    - cron: '17 2 * * *'
+    # 04:30 Beijing time daily. GitHub Actions schedules use UTC.
+    - cron: '30 20 * * *'
   workflow_dispatch:
 
 permissions:

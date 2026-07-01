@@ -450,7 +450,7 @@ def render(rules: list[str], stats: dict[str, int]) -> str:
         "# 加密货币 / Web3 个人完善规则：命中后走「💰 加密货币」策略组。",
         "#",
         "# 生成方式：python3 scripts/build_crypto_custom.py",
-        "# 自动同步：GitHub Actions 每天 10:17 北京时间运行 .github/workflows/sync-crypto-rules.yml。",
+        "# 自动同步：GitHub Actions 每天 04:30 北京时间运行 .github/workflows/sync-crypto-rules.yml。",
         "# 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；",
         "# 本文件合并 v2fly / blackmatrix7 / lurixo / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。",
         "# 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。",

@@ -62,7 +62,7 @@
 
 ### 每日同步
 
-`.github/workflows/sync-crypto-rules.yml` 每天 **10:17 北京时间** 自动运行：
+`.github/workflows/sync-crypto-rules.yml` 每天 **04:30 北京时间** 自动运行：
 
 1. 拉取上游源。
 2. 重建 `rules/Dozee_Crypto_Custom.list`。
