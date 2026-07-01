@@ -17,4 +17,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip pyyaml
-      - run: python scripts/validate.py
+      - name: Check generated crypto/Web3 supplement
+        run: python scripts/build_crypto_custom.py --check
+      - name: Validate rules and V3 template
+        run: python scripts/validate.py

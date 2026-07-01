@@ -50,6 +50,8 @@ ALLOWED_PREFIXES = {
     'DST-PORT', 'SRC-PORT', 'PROCESS-NAME', 'PROCESS-PATH', 'NETWORK',
 }
 
+CRYPTO_CUSTOM_ALLOWED_PREFIXES = {'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD'}
+
 CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS = (
     'polymarket', 'predict.fun', 'predict.fail', 'kalshi', 'predictit.org',
     'manifold.markets', 'metaculus.com', 'limitless.exchange', 'opinion.trade',
@@ -63,7 +65,7 @@ def fail(msg: str) -> None:
     sys.exit(1)
 
 
-def validate_rule_file(rule_file: Path, *, forbid_crypto_crossovers: bool = False) -> None:
+def validate_rule_file(rule_file: Path, *, crypto_custom: bool = False) -> None:
     if not rule_file.exists():
         fail(f'missing {rule_file}')
     active_lines = []
@@ -76,7 +78,9 @@ def validate_rule_file(rule_file: Path, *, forbid_crypto_crossovers: bool = Fals
             fail(f'{rule_file}:{lineno} invalid rule, expected TYPE,value: {line}')
         if parts[0] not in ALLOWED_PREFIXES:
             fail(f'{rule_file}:{lineno} unsupported rule type {parts[0]!r}: {line}')
-        if forbid_crypto_crossovers and any(token in line.lower() for token in CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS):
+        if crypto_custom and parts[0] not in CRYPTO_CUSTOM_ALLOWED_PREFIXES:
+            fail(f'{rule_file}:{lineno} crypto custom list should stay domain-only, got {parts[0]!r}: {line}')
+        if crypto_custom and any(token in line.lower() for token in CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS):
             fail(f'{rule_file}:{lineno} should not capture prediction/social/dev/google domain in crypto custom list: {line}')
         active_lines.append(line)
     duplicates = sorted({line for line in active_lines if active_lines.count(line) > 1})
@@ -88,7 +92,7 @@ def validate_rules() -> None:
     for provider_name, provider in LOCAL_RULE_PROVIDERS.items():
         validate_rule_file(
             provider['file'],
-            forbid_crypto_crossovers=(provider_name == 'Dozee_Crypto_Custom'),
+            crypto_custom=(provider_name == 'Dozee_Crypto_Custom'),
         )
 
 

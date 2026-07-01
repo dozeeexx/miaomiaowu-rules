@@ -2,17 +2,21 @@
 """Build the curated Dozee crypto/Web3 supplement rule list.
 
 Design:
-- Third-party main provider remains MetaCubeX category-cryptocurrency.mrs.
-- Third-party extra provider remains blackmatrix7 Crypto.list.
-- This generated file only keeps high-value supplement rules not already covered by
-  those two selected providers, after filtering broad/non-crypto/prediction-market
-  domains.
+- The V3 template keeps MetaCubeX category-cryptocurrency.mrs as the broad
+  Mihomo-native main provider.
+- The template keeps blackmatrix7 Crypto.list as the broad text extra provider.
+- This generated file merges several third-party upstreams, but only publishes
+  screened supplement rules that are not already covered by the two broad
+  providers.
+- The generator intentionally avoids IP CIDR, app package/process rules, and
+  most broad DOMAIN-KEYWORD entries so the shared template stays conservative.
 """
 from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
 import argparse
+import json
 import re
 import sys
 import urllib.request
@@ -28,6 +32,12 @@ SUPPLEMENT_CLASSICAL_SOURCES = {
     "blackmatrix7/Cryptocurrency": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Cryptocurrency/Cryptocurrency.list",
     "blackmatrix7/Binance": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Binance/Binance.list",
     "blackmatrix7/OKX": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OKX/OKX.list",
+    "enriquephl/Web3": "https://raw.githubusercontent.com/enriquephl/QuantumultX_config/main/ClashRuleSet/Clash/Web3.list",
+}
+
+SUPPLEMENT_LURIXO_GEOSITE_SOURCES = {
+    "lurixo/geosite-cryptocurrency": "https://raw.githubusercontent.com/lurixo/sing-box-rules/dev/geosite/geosite-cryptocurrency.json",
+    "lurixo/geosite-binance": "https://raw.githubusercontent.com/lurixo/sing-box-rules/dev/geosite/geosite-binance.json",
 }
 
 # Manual additions focus on exchange app/API domains, wallets, on-chain infra,
@@ -46,6 +56,7 @@ DOMAIN-SUFFIX,byapps.net
 DOMAIN-SUFFIX,byapis.com
 DOMAIN-SUFFIX,bitgetapi.com
 DOMAIN-SUFFIX,bitgetapp.com
+DOMAIN-SUFFIX,bitgetapps.com
 DOMAIN-SUFFIX,bitgetstatic.com
 DOMAIN-SUFFIX,bitgetimg.com
 DOMAIN-SUFFIX,mexc.com
@@ -103,6 +114,38 @@ DOMAIN-SUFFIX,ipfs.io
 DOMAIN-SUFFIX,ipfs.tech
 DOMAIN-SUFFIX,pinata.cloud
 DOMAIN-SUFFIX,arweave.net
+DOMAIN-SUFFIX,abs.xyz
+DOMAIN-SUFFIX,airdrop.sns.id
+DOMAIN-SUFFIX,alphafi.xyz
+DOMAIN-SUFFIX,ao-testnet.xyz
+DOMAIN-SUFFIX,ar-io.net
+DOMAIN-SUFFIX,ardrive.io
+DOMAIN-SUFFIX,cetus.zone
+DOMAIN-SUFFIX,circle.com
+DOMAIN-SUFFIX,galxe.com
+DOMAIN-SUFFIX,llama.fi
+DOMAIN-SUFFIX,moonpay.com
+DOMAIN-SUFFIX,moonpaycloud.com
+DOMAIN-SUFFIX,moonshot.money
+DOMAIN-SUFFIX,mystenlabs.com
+DOMAIN-SUFFIX,naviprotocol.io
+DOMAIN-SUFFIX,nexus.xyz
+DOMAIN-SUFFIX,save.finance
+DOMAIN-SUFFIX,slush.app
+DOMAIN-SUFFIX,sm.xyz
+DOMAIN-SUFFIX,sns.id
+DOMAIN-SUFFIX,sui.io
+DOMAIN-SUFFIX,sui.rpcpool.com
+DOMAIN-SUFFIX,suiet.app
+DOMAIN-SUFFIX,suilend.fi
+DOMAIN-SUFFIX,suins.io
+DOMAIN-SUFFIX,suiscan.xyz
+DOMAIN-SUFFIX,suivision.xyz
+DOMAIN-SUFFIX,volo.fi
+DOMAIN-SUFFIX,volosui.com
+DOMAIN-SUFFIX,wallet.okex.org
+DOMAIN-SUFFIX,walrus.xyz
+DOMAIN-SUFFIX,yzilabs.io
 """.strip().splitlines()
 
 # Keep prediction-market primary domains out of the crypto supplement. The
@@ -126,11 +169,62 @@ EXCLUDE_SUBSTRINGS = {
     "github.com",
     "google.",
     "youtube.",
-    # Tracking-only domain from one third-party Binance list; not needed here.
+    # Tracking/CDN/fraud/infra-only domains from mobile exchange lists. These
+    # are useful observations but too broad for a shared crypto strategy group.
+    "appsflyer",
     "appsflayer.com",
+    "appsflyersdk.com",
+    "forter.com",
+    "siftscience.com",
+    "braze.eu",
+    "cloudfront.net",
+    "elb.amazonaws.com",
+    "amazontrust.com",
+    "myqcloud.com",
 }
 
-ALLOWED_TYPES = {
+# Generic infrastructure suffixes are often used by crypto apps but are not
+# crypto-specific. Do not route a whole generic service to 💰 加密货币.
+EXCLUDE_SUFFIXES = {
+    "ably.io",
+    "amazonaws.com",
+    "amazontrust.com",
+    "appsflyer.com",
+    "appsflyersdk.com",
+    "appsflayer.com",  # typo observed in one third-party Binance list
+    "braze.eu",
+    "cloudfront.net",
+    "commonservice.io",
+    "forter.com",
+    "siftscience.com",
+}
+
+# DOMAIN-KEYWORD is intentionally limited to a small set of mobile-app / CDN
+# brand tokens that often appear as generated hostnames. Generic words such as
+# bitcoin/ethereum/crypto/ripple are excluded, and most normal services should
+# be represented by DOMAIN-SUFFIX instead.
+KEYWORD_ALLOWLIST = {
+    "bitget",
+    "bnappzh",
+    "bnbchain",
+    "bnbstatic",
+    "bnbzh",
+    "bntrace",
+    "bscdn",
+    "bscscan",
+    "bsctrace",
+    "coinmarketcap",
+    "dcellar",
+    "gopax",
+    "greenfieldscan",
+    "opbnbscan",
+    "saasexch",
+    "tokocrypto",
+    "trustwallet",
+    "wazirx",
+}
+
+ALLOWED_INPUT_TYPES = {
     "DOMAIN",
     "DOMAIN-SUFFIX",
     "DOMAIN-KEYWORD",
@@ -140,6 +234,7 @@ ALLOWED_TYPES = {
     "PROCESS-NAME",
     "PROCESS-PATH",
 }
+DOMAIN_OUTPUT_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-WILDCARD"}
 
 
 def fetch(url: str) -> str:
@@ -147,9 +242,23 @@ def fetch(url: str) -> str:
         return response.read().decode("utf-8", "replace")
 
 
+def normalize_rule(rule_type: str, value: str, *, no_resolve: bool = False) -> str | None:
+    rule_type = rule_type.upper().strip()
+    value = value.lower().strip().rstrip(".")
+    if rule_type not in ALLOWED_INPUT_TYPES or not value:
+        return None
+    suffix = ",no-resolve" if no_resolve and rule_type in {"IP-CIDR", "IP-CIDR6"} else ""
+    return f"{rule_type},{value}{suffix}"
+
+
+def split_rule(rule: str) -> tuple[str, str]:
+    parts = rule.split(",")
+    return parts[0].upper(), parts[1].lower().rstrip(".")
+
+
 def normalize_classical(raw: str) -> str | None:
     line = raw.strip()
-    if not line or line.startswith("#"):
+    if not line or line.startswith("#") or line.startswith("//"):
         return None
     if line.startswith("- "):
         line = line[2:].strip()
@@ -158,18 +267,38 @@ def normalize_classical(raw: str) -> str | None:
     parts = [part.strip() for part in line.split(",")]
     if len(parts) < 2:
         return None
-    rule_type = parts[0].upper()
-    if rule_type not in ALLOWED_TYPES:
-        return None
-    value = parts[1].lower().rstrip(".")
-    if not value:
-        return None
-    suffix = ",no-resolve" if any(part.lower() == "no-resolve" for part in parts[2:]) else ""
-    return f"{rule_type},{value}{suffix}"
+    return normalize_rule(
+        parts[0],
+        parts[1],
+        no_resolve=any(part.lower() == "no-resolve" for part in parts[2:]),
+    )
 
 
 def parse_classical_url(url: str) -> list[str]:
     return [rule for line in fetch(url).splitlines() if (rule := normalize_classical(line))]
+
+
+def parse_lurixo_geosite_url(url: str) -> list[str]:
+    """Convert sing-box geosite JSON rules into Mihomo classical candidates.
+
+    package_name/process-like rules are deliberately ignored: they are useful in
+    sing-box Android, but not portable to the shared Miaomiaowu V3 template.
+    """
+    obj = json.loads(fetch(url))
+    out: list[str] = []
+    for block in obj.get("rules", []):
+        if not isinstance(block, dict):
+            continue
+        for value in block.get("domain", []) or []:
+            if rule := normalize_rule("DOMAIN", value):
+                out.append(rule)
+        for value in block.get("domain_suffix", []) or []:
+            if rule := normalize_rule("DOMAIN-SUFFIX", value):
+                out.append(rule)
+        for value in block.get("domain_keyword", []) or []:
+            if rule := normalize_rule("DOMAIN-KEYWORD", value):
+                out.append(rule)
+    return out
 
 
 def parse_meta_reference(url: str) -> list[str]:
@@ -222,40 +351,97 @@ def parse_v2fly_file(name: str) -> tuple[str, ...]:
     return tuple(out)
 
 
+def suffix_is_excluded(value: str) -> bool:
+    return any(value == suffix or value.endswith("." + suffix) for suffix in EXCLUDE_SUFFIXES)
+
+
 def should_exclude(rule: str) -> bool:
     lower = rule.lower()
-    return any(token in lower for token in EXCLUDE_SUBSTRINGS)
+    if any(token in lower for token in EXCLUDE_SUBSTRINGS):
+        return True
+    _rule_type, value = split_rule(rule)
+    return suffix_is_excluded(value)
+
+
+def baseline_suffixes(baseline: set[str]) -> set[str]:
+    return {split_rule(rule)[1] for rule in baseline if split_rule(rule)[0] == "DOMAIN-SUFFIX"}
+
+
+def is_covered_by_baseline(rule: str, baseline: set[str], suffixes: set[str]) -> bool:
+    if rule in baseline:
+        return True
+    rule_type, value = split_rule(rule)
+    if rule_type in {"DOMAIN", "DOMAIN-SUFFIX"}:
+        return any(value == suffix or value.endswith("." + suffix) for suffix in suffixes)
+    return False
+
+
+def is_publishable(rule: str) -> bool:
+    rule_type, value = split_rule(rule)
+    if should_exclude(rule):
+        return False
+    if rule_type in DOMAIN_OUTPUT_TYPES:
+        return True
+    if rule_type == "DOMAIN-KEYWORD":
+        return value in KEYWORD_ALLOWLIST
+    return False
 
 
 def build_rules() -> tuple[list[str], dict[str, int]]:
     primary_seen = set(parse_meta_reference(META_REFERENCE_LIST))
     blackmatrix_seen = set(parse_classical_url(BLACKMATRIX_CRYPTO))
     baseline = primary_seen | blackmatrix_seen
+    baseline_domain_suffixes = baseline_suffixes(baseline)
 
-    candidates: list[str] = []
-    candidates.extend(parse_v2fly_file("category-cryptocurrency"))
-    for url in SUPPLEMENT_CLASSICAL_SOURCES.values():
-        candidates.extend(parse_classical_url(url))
-    for raw in MANUAL_RULES:
-        if rule := normalize_classical(raw):
-            candidates.append(rule)
+    candidates_by_source: dict[str, list[str]] = {}
+    candidates_by_source["v2fly/category-cryptocurrency"] = list(parse_v2fly_file("category-cryptocurrency"))
+    for name, url in SUPPLEMENT_CLASSICAL_SOURCES.items():
+        candidates_by_source[name] = parse_classical_url(url)
+    for name, url in SUPPLEMENT_LURIXO_GEOSITE_SOURCES.items():
+        candidates_by_source[name] = parse_lurixo_geosite_url(url)
+    candidates_by_source["dozee/manual"] = [
+        rule for raw in MANUAL_RULES if (rule := normalize_classical(raw))
+    ]
+
+    candidates = [rule for rules in candidates_by_source.values() for rule in rules]
 
     selected: list[str] = []
     selected_seen: set[str] = set()
     for rule in candidates:
-        if rule in baseline or rule in selected_seen or should_exclude(rule):
+        if (
+            rule in selected_seen
+            or is_covered_by_baseline(rule, baseline, baseline_domain_suffixes)
+            or not is_publishable(rule)
+        ):
             continue
         selected_seen.add(rule)
         selected.append(rule)
+
+    selected_suffix_values = {split_rule(rule)[1] for rule in selected if split_rule(rule)[0] == "DOMAIN-SUFFIX"}
+    selected = [
+        rule
+        for rule in selected
+        if not (
+            split_rule(rule)[0] == "DOMAIN"
+            and any(
+                split_rule(rule)[1] == suffix or split_rule(rule)[1].endswith("." + suffix)
+                for suffix in selected_suffix_values
+            )
+        )
+    ]
 
     # Deterministic and reviewable output.
     selected.sort(key=lambda r: (r.split(",", 1)[0], r.split(",", 1)[1]))
     stats = {
         "metacubex_reference_rules": len(primary_seen),
-        "blackmatrix_crypto_rules": len(blackmatrix_seen),
-        "supplement_candidates": len(candidates),
+        "blackmatrix7_crypto_rules": len(blackmatrix_seen),
+        "supplement_sources": len(candidates_by_source),
+        "supplement_candidates_before_filter": len(candidates),
         "custom_selected_rules": len(selected),
     }
+    for name, rules in candidates_by_source.items():
+        key = "source_" + re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+        stats[key] = len(rules)
     return selected, stats
 
 
@@ -264,13 +450,16 @@ def render(rules: list[str], stats: dict[str, int]) -> str:
         "# 加密货币 / Web3 个人完善规则：命中后走「💰 加密货币」策略组。",
         "#",
         "# 生成方式：python3 scripts/build_crypto_custom.py",
+        "# 自动同步：GitHub Actions 每天 10:17 北京时间运行 .github/workflows/sync-crypto-rules.yml。",
         "# 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；",
-        "# 本文件只保留两者之外的高价值补漏，来源包含 v2fly/blackmatrix7/人工增强，已筛选去重。",
-        "# 不收预测市场主域名，也不收 Google/X/Discord/GitHub 等已有大类。",
+        "# 本文件合并 v2fly / blackmatrix7 / lurixo / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。",
+        "# 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。",
+        "# 不收预测市场主域名，也不收 Google/X/Discord/GitHub/通用 CDN/追踪风控等已有或高误伤大类。",
         "#",
         f"# MetaCubeX reference rules: {stats['metacubex_reference_rules']}",
-        f"# blackmatrix7 Crypto rules: {stats['blackmatrix_crypto_rules']}",
-        f"# supplement candidates before filter: {stats['supplement_candidates']}",
+        f"# blackmatrix7 Crypto rules: {stats['blackmatrix7_crypto_rules']}",
+        f"# supplement sources: {stats['supplement_sources']}",
+        f"# supplement candidates before filter: {stats['supplement_candidates_before_filter']}",
         f"# selected custom supplement rules: {stats['custom_selected_rules']}",
         "",
     ]

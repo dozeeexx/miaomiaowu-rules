@@ -1,0 +1,43 @@
+name: Sync crypto/Web3 rules
+
+on:
+  schedule:
+    # 10:17 Beijing time daily. GitHub Actions schedules use UTC.
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-crypto-rules
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip pyyaml
+      - name: Rebuild curated crypto/Web3 supplement
+        run: python scripts/build_crypto_custom.py
+      - name: Validate generated rules and V3 template
+        run: |
+          python scripts/build_crypto_custom.py --check
+          python scripts/validate.py
+      - name: Commit refreshed rules if upstream changed
+        run: |
+          if git diff --quiet -- rules/Dozee_Crypto_Custom.list; then
+            echo "No crypto/Web3 rule changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rules/Dozee_Crypto_Custom.list
+          git commit -m "Refresh crypto Web3 supplement rules"
+          git push

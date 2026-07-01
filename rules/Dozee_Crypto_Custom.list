@@ -1,51 +1,120 @@
 # 加密货币 / Web3 个人完善规则：命中后走「💰 加密货币」策略组。
 #
 # 生成方式：python3 scripts/build_crypto_custom.py
+# 自动同步：GitHub Actions 每天 10:17 北京时间运行 .github/workflows/sync-crypto-rules.yml。
 # 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；
-# 本文件只保留两者之外的高价值补漏，来源包含 v2fly/blackmatrix7/人工增强，已筛选去重。
-# 不收预测市场主域名，也不收 Google/X/Discord/GitHub 等已有大类。
+# 本文件合并 v2fly / blackmatrix7 / lurixo / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。
+# 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。
+# 不收预测市场主域名，也不收 Google/X/Discord/GitHub/通用 CDN/追踪风控等已有或高误伤大类。
 #
 # MetaCubeX reference rules: 222
 # blackmatrix7 Crypto rules: 204
-# supplement candidates before filter: 351
-# selected custom supplement rules: 39
+# supplement sources: 8
+# supplement candidates before filter: 1002
+# selected custom supplement rules: 105
 
+DOMAIN-KEYWORD,bitget
+DOMAIN-KEYWORD,bnappzh
+DOMAIN-KEYWORD,bnbchain
+DOMAIN-KEYWORD,bnbstatic
+DOMAIN-KEYWORD,bnbzh
+DOMAIN-KEYWORD,bntrace
+DOMAIN-KEYWORD,bscdn
+DOMAIN-KEYWORD,bscscan
+DOMAIN-KEYWORD,bsctrace
+DOMAIN-KEYWORD,coinmarketcap
+DOMAIN-KEYWORD,dcellar
+DOMAIN-KEYWORD,gopax
+DOMAIN-KEYWORD,greenfieldscan
+DOMAIN-KEYWORD,opbnbscan
+DOMAIN-KEYWORD,saasexch
+DOMAIN-KEYWORD,tokocrypto
+DOMAIN-KEYWORD,trustwallet
+DOMAIN-KEYWORD,wazirx
+DOMAIN-SUFFIX,abs.xyz
+DOMAIN-SUFFIX,airdrop.sns.id
 DOMAIN-SUFFIX,alchemy.com
 DOMAIN-SUFFIX,alchemyapi.io
+DOMAIN-SUFFIX,alphafi.xyz
 DOMAIN-SUFFIX,ankr.com
+DOMAIN-SUFFIX,ans-stats.decent.land
+DOMAIN-SUFFIX,ao-testnet.xyz
+DOMAIN-SUFFIX,ar-io.net
 DOMAIN-SUFFIX,arbiscan.io
+DOMAIN-SUFFIX,ardrive.io
 DOMAIN-SUFFIX,arweave.net
 DOMAIN-SUFFIX,backpack.app
 DOMAIN-SUFFIX,basescan.org
 DOMAIN-SUFFIX,binance.im
 DOMAIN-SUFFIX,binancefuture.com
+DOMAIN-SUFFIX,bitget.club
+DOMAIN-SUFFIX,bitget.org
+DOMAIN-SUFFIX,bitget.xyz
 DOMAIN-SUFFIX,bitgetapi.com
 DOMAIN-SUFFIX,bitgetapp.com
+DOMAIN-SUFFIX,bitgetapps.com
 DOMAIN-SUFFIX,bitgetimg.com
 DOMAIN-SUFFIX,bitgetstatic.com
+DOMAIN-SUFFIX,bitopro.com
 DOMAIN-SUFFIX,blur.io
 DOMAIN-SUFFIX,bnbzh.ac
+DOMAIN-SUFFIX,cetus.zone
 DOMAIN-SUFFIX,chain.link
 DOMAIN-SUFFIX,chainlist.org
+DOMAIN-SUFFIX,circle.com
+DOMAIN-SUFFIX,cmcap.io
 DOMAIN-SUFFIX,coinbaseapi.com
+DOMAIN-SUFFIX,cointelegraph.com
+DOMAIN-SUFFIX,dappreview.com
 DOMAIN-SUFFIX,dexscreener.com
+DOMAIN-SUFFIX,galxe.com
 DOMAIN-SUFFIX,gate.com
 DOMAIN-SUFFIX,gateio.im
 DOMAIN-SUFFIX,gateio.ws
 DOMAIN-SUFFIX,graphprotocol.com
+DOMAIN-SUFFIX,huobi.br.com
+DOMAIN-SUFFIX,huobi.co.ma
+DOMAIN-SUFFIX,huobi.ug
+DOMAIN-SUFFIX,huobi.ws
 DOMAIN-SUFFIX,ipfs.tech
 DOMAIN-SUFFIX,keplr.app
 DOMAIN-SUFFIX,ledger.com
 DOMAIN-SUFFIX,litecoin.org
+DOMAIN-SUFFIX,llama.fi
 DOMAIN-SUFFIX,magiceden.io
 DOMAIN-SUFFIX,metamask.app.link
 DOMAIN-SUFFIX,mexc.fm
 DOMAIN-SUFFIX,mexcimg.com
+DOMAIN-SUFFIX,moonpay.com
+DOMAIN-SUFFIX,moonpaycloud.com
+DOMAIN-SUFFIX,moonshot.money
+DOMAIN-SUFFIX,mystenlabs.com
+DOMAIN-SUFFIX,naviprotocol.io
+DOMAIN-SUFFIX,nexus.xyz
 DOMAIN-SUFFIX,pinata.cloud
 DOMAIN-SUFFIX,polygonscan.com
 DOMAIN-SUFFIX,publicnode.com
 DOMAIN-SUFFIX,quicknode.com
 DOMAIN-SUFFIX,rabby.io
 DOMAIN-SUFFIX,rainbow.me
+DOMAIN-SUFFIX,save.finance
+DOMAIN-SUFFIX,slush.app
+DOMAIN-SUFFIX,sm.xyz
+DOMAIN-SUFFIX,sns.id
 DOMAIN-SUFFIX,solscan.io
+DOMAIN-SUFFIX,sui.io
+DOMAIN-SUFFIX,sui.rpcpool.com
+DOMAIN-SUFFIX,suiet.app
+DOMAIN-SUFFIX,suilend.fi
+DOMAIN-SUFFIX,suins.io
+DOMAIN-SUFFIX,suiscan.xyz
+DOMAIN-SUFFIX,suivision.xyz
+DOMAIN-SUFFIX,swipe.io
+DOMAIN-SUFFIX,token-api.metaswap.codefi.network
+DOMAIN-SUFFIX,volo.fi
+DOMAIN-SUFFIX,volosui.com
+DOMAIN-SUFFIX,wallet.okex.org
+DOMAIN-SUFFIX,walrus.xyz
+DOMAIN-SUFFIX,xal.space
+DOMAIN-SUFFIX,yzilabs.io
 DOMAIN-SUFFIX,zerion.io
