@@ -7,8 +7,8 @@
 #
 # MetaCubeX reference rules: 222
 # blackmatrix7 Crypto rules: 204
-# supplement candidates before filter: 350
-# selected custom supplement rules: 38
+# supplement candidates before filter: 351
+# selected custom supplement rules: 39
 
 DOMAIN-SUFFIX,alchemy.com
 DOMAIN-SUFFIX,alchemyapi.io
@@ -36,6 +36,7 @@ DOMAIN-SUFFIX,graphprotocol.com
 DOMAIN-SUFFIX,ipfs.tech
 DOMAIN-SUFFIX,keplr.app
 DOMAIN-SUFFIX,ledger.com
+DOMAIN-SUFFIX,litecoin.org
 DOMAIN-SUFFIX,magiceden.io
 DOMAIN-SUFFIX,metamask.app.link
 DOMAIN-SUFFIX,mexc.fm
