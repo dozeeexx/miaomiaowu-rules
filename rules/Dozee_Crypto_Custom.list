@@ -1,0 +1,50 @@
+# 加密货币 / Web3 个人完善规则：命中后走「💰 加密货币」策略组。
+#
+# 生成方式：python3 scripts/build_crypto_custom.py
+# 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；
+# 本文件只保留两者之外的高价值补漏，来源包含 v2fly/blackmatrix7/人工增强，已筛选去重。
+# 不收预测市场主域名，也不收 Google/X/Discord/GitHub 等已有大类。
+#
+# MetaCubeX reference rules: 222
+# blackmatrix7 Crypto rules: 204
+# supplement candidates before filter: 350
+# selected custom supplement rules: 38
+
+DOMAIN-SUFFIX,alchemy.com
+DOMAIN-SUFFIX,alchemyapi.io
+DOMAIN-SUFFIX,ankr.com
+DOMAIN-SUFFIX,arbiscan.io
+DOMAIN-SUFFIX,arweave.net
+DOMAIN-SUFFIX,backpack.app
+DOMAIN-SUFFIX,basescan.org
+DOMAIN-SUFFIX,binance.im
+DOMAIN-SUFFIX,binancefuture.com
+DOMAIN-SUFFIX,bitgetapi.com
+DOMAIN-SUFFIX,bitgetapp.com
+DOMAIN-SUFFIX,bitgetimg.com
+DOMAIN-SUFFIX,bitgetstatic.com
+DOMAIN-SUFFIX,blur.io
+DOMAIN-SUFFIX,bnbzh.ac
+DOMAIN-SUFFIX,chain.link
+DOMAIN-SUFFIX,chainlist.org
+DOMAIN-SUFFIX,coinbaseapi.com
+DOMAIN-SUFFIX,dexscreener.com
+DOMAIN-SUFFIX,gate.com
+DOMAIN-SUFFIX,gateio.im
+DOMAIN-SUFFIX,gateio.ws
+DOMAIN-SUFFIX,graphprotocol.com
+DOMAIN-SUFFIX,ipfs.tech
+DOMAIN-SUFFIX,keplr.app
+DOMAIN-SUFFIX,ledger.com
+DOMAIN-SUFFIX,magiceden.io
+DOMAIN-SUFFIX,metamask.app.link
+DOMAIN-SUFFIX,mexc.fm
+DOMAIN-SUFFIX,mexcimg.com
+DOMAIN-SUFFIX,pinata.cloud
+DOMAIN-SUFFIX,polygonscan.com
+DOMAIN-SUFFIX,publicnode.com
+DOMAIN-SUFFIX,quicknode.com
+DOMAIN-SUFFIX,rabby.io
+DOMAIN-SUFFIX,rainbow.me
+DOMAIN-SUFFIX,solscan.io
+DOMAIN-SUFFIX,zerion.io

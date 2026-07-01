@@ -240,6 +240,19 @@ proxy-groups:
   - REJECT
   - __PROXY_PROVIDERS__
   - __PROXY_NODES__
+- name: 💰 加密货币
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
 - name: 🐟 漏网之鱼
   type: select
   include-all: true
@@ -265,6 +278,9 @@ rules:
 - DOMAIN,beacons.gcp.gvt2.com,DIRECT
 - RULE-SET,Dozee_Custom_Proxy,🧩 自定义
 - RULE-SET,Dozee_Prediction_Market,📈 预测市场
+- RULE-SET,crypto-main,💰 加密货币
+- RULE-SET,crypto-blackmatrix,💰 加密货币
+- RULE-SET,Dozee_Crypto_Custom,💰 加密货币
 - AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
 - RULE-SET,category-ai-!cn,💬 AI 服务
 - RULE-SET,youtube,📹 油管视频
@@ -469,4 +485,25 @@ rule-providers:
     format: text
     url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list
     path: ./providers/Dozee_Prediction_Market.list
+    interval: 3600
+  crypto-main:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-cryptocurrency.mrs
+    path: ./ruleset/crypto-main.mrs
+    interval: 86400
+    format: mrs
+  crypto-blackmatrix:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Crypto/Crypto.list
+    path: ./providers/crypto-blackmatrix.list
+    interval: 86400
+  Dozee_Crypto_Custom:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list
+    path: ./providers/Dozee_Crypto_Custom.list
     interval: 3600
