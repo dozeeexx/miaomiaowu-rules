@@ -7,11 +7,11 @@
 # 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。
 # 不收预测市场主域名，也不收 Google/X/Discord/GitHub/通用 CDN/追踪风控等已有或高误伤大类。
 #
-# MetaCubeX reference rules: 222
+# MetaCubeX reference rules: 223
 # blackmatrix7 Crypto rules: 204
 # supplement sources: 8
 # supplement candidates before filter: 1002
-# selected custom supplement rules: 105
+# selected custom supplement rules: 104
 
 DOMAIN-KEYWORD,bitget
 DOMAIN-KEYWORD,bnappzh
@@ -79,7 +79,6 @@ DOMAIN-SUFFIX,huobi.ws
 DOMAIN-SUFFIX,ipfs.tech
 DOMAIN-SUFFIX,keplr.app
 DOMAIN-SUFFIX,ledger.com
-DOMAIN-SUFFIX,litecoin.org
 DOMAIN-SUFFIX,llama.fi
 DOMAIN-SUFFIX,magiceden.io
 DOMAIN-SUFFIX,metamask.app.link
