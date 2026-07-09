@@ -17,8 +17,12 @@ from functools import lru_cache
 from pathlib import Path
 import argparse
 import json
+import os
 import re
+import subprocess
 import sys
+import urllib.error
+import urllib.parse
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +54,8 @@ DOMAIN-SUFFIX,okx-dns.com
 DOMAIN-SUFFIX,okx-dns1.com
 DOMAIN-SUFFIX,okx-dns2.com
 DOMAIN-SUFFIX,gate.com
+DOMAIN-SUFFIX,gate.io
+DOMAIN-SUFFIX,gate.ac
 DOMAIN-SUFFIX,gateio.ws
 DOMAIN-SUFFIX,gateio.im
 DOMAIN-SUFFIX,byapps.net
@@ -224,6 +230,15 @@ KEYWORD_ALLOWLIST = {
     "wazirx",
 }
 
+# A few exchange core domains are intentionally kept in the custom supplement
+# even when a broad upstream provider also covers them. This gives the existing
+# Dozee_Crypto_Custom provider a small safety net for app traffic observed to
+# fall through to MATCH/🐟 漏网之鱼 when broad providers are stale or unavailable.
+FORCE_PUBLISH_RULES = {
+    "DOMAIN-SUFFIX,gate.io",
+    "DOMAIN-SUFFIX,gate.ac",
+}
+
 ALLOWED_INPUT_TYPES = {
     "DOMAIN",
     "DOMAIN-SUFFIX",
@@ -237,9 +252,74 @@ ALLOWED_INPUT_TYPES = {
 DOMAIN_OUTPUT_TYPES = {"DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-WILDCARD"}
 
 
-def fetch(url: str) -> str:
-    with urllib.request.urlopen(url, timeout=30) as response:
+FETCH_USER_AGENT = "dozee-miaomiaowu-rules-builder/1.0"
+
+
+@lru_cache(maxsize=1)
+def github_token() -> str | None:
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        return token
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "token"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return None
+    token = result.stdout.strip()
+    return token or None
+
+
+def fetch_raw_github_via_api(url: str) -> str | None:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.netloc != "raw.githubusercontent.com":
+        return None
+    parts = parsed.path.lstrip("/").split("/", 3)
+    if len(parts) != 4:
+        return None
+    owner, repo, ref, file_path = parts
+    api_path = urllib.parse.quote(file_path)
+    api_ref = urllib.parse.quote(ref)
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{api_path}?ref={api_ref}"
+    headers = {
+        "User-Agent": FETCH_USER_AGENT,
+        "Accept": "application/vnd.github.raw",
+    }
+    if token := github_token():
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(api_url, headers=headers)
+    with urllib.request.urlopen(request, timeout=30) as response:
         return response.read().decode("utf-8", "replace")
+
+
+def fetch(url: str) -> str:
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": FETCH_USER_AGENT},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return response.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        if exc.code != 429:
+            raise
+        if content := fetch_raw_github_via_api(url):
+            return content
+        # raw.githubusercontent.com occasionally rate-limits urllib while curl
+        # succeeds from the same host. Fall back to curl so scheduled syncs do
+        # not fail on transient raw GitHub 429 responses.
+        result = subprocess.run(
+            ["curl", "-fsSL", "-A", FETCH_USER_AGENT, url],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=45,
+        )
+        return result.stdout
 
 
 def normalize_rule(rule_type: str, value: str, *, no_resolve: bool = False) -> str | None:
@@ -408,11 +488,9 @@ def build_rules() -> tuple[list[str], dict[str, int]]:
     selected: list[str] = []
     selected_seen: set[str] = set()
     for rule in candidates:
-        if (
-            rule in selected_seen
-            or is_covered_by_baseline(rule, baseline, baseline_domain_suffixes)
-            or not is_publishable(rule)
-        ):
+        if rule in selected_seen or not is_publishable(rule):
+            continue
+        if rule not in FORCE_PUBLISH_RULES and is_covered_by_baseline(rule, baseline, baseline_domain_suffixes):
             continue
         selected_seen.add(rule)
         selected.append(rule)

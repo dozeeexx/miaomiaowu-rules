@@ -10,8 +10,8 @@
 # MetaCubeX reference rules: 223
 # blackmatrix7 Crypto rules: 204
 # supplement sources: 8
-# supplement candidates before filter: 1002
-# selected custom supplement rules: 104
+# supplement candidates before filter: 1004
+# selected custom supplement rules: 106
 
 DOMAIN-KEYWORD,bitget
 DOMAIN-KEYWORD,bnappzh
@@ -68,7 +68,9 @@ DOMAIN-SUFFIX,cointelegraph.com
 DOMAIN-SUFFIX,dappreview.com
 DOMAIN-SUFFIX,dexscreener.com
 DOMAIN-SUFFIX,galxe.com
+DOMAIN-SUFFIX,gate.ac
 DOMAIN-SUFFIX,gate.com
+DOMAIN-SUFFIX,gate.io
 DOMAIN-SUFFIX,gateio.im
 DOMAIN-SUFFIX,gateio.ws
 DOMAIN-SUFFIX,graphprotocol.com
