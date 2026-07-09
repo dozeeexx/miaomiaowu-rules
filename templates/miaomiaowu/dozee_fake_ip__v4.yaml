@@ -1,0 +1,541 @@
+mode: rule
+dns:
+  enable: true
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
+  direct-nameserver:
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
+  nameserver-policy:
+    +.xn--ngstr-lra8j.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    services.googleapis.cn:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    +.services.googleapis.cn:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    clientservices.googleapis.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    connectivitycheck.gstatic.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    beacons.gvt2.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    beacons.gcp.gvt2.com:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    geosite:cn,private:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
+    geosite:geolocation-!cn:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+  proxy-server-nameserver:
+  - https://120.53.53.53/dns-query
+  - https://223.5.5.5/dns-query
+  ipv6: true
+  listen: 0.0.0.0:7874
+  default-nameserver:
+  - 223.5.5.5
+  - 119.29.29.29
+  fake-ip-filter:
+  - +.lan
+  - +.local
+  - +.example.com
+proxies: null
+proxy-groups:
+- name: 🚀 节点选择
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - ♻️ 自动选择
+  - 🌠 中转节点
+  - 🌄 落地节点
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  - DIRECT
+  - REJECT
+- name: ♻️ 自动选择
+  type: url-test
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+- name: 🌠 中转节点
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  filter: 中转|relay|RELAY|Relay|entry|ENTRY|Entry
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌄 落地节点
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  filter: 落地|exit|EXIT|Exit|egress|EGRESS|Egress
+  proxies:
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+  dialer-proxy-group: 🌠 中转节点
+- name: 💬 AI 服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 📹 油管视频
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🔍 谷歌服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🏠 私有网络
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🔒 国内服务
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 📲 电报消息
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🐱 Github
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌐 社交媒体
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🎬 流媒体
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🌐 非中国
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🧩 自定义
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 📈 预测市场
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 💰 加密货币
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - 🌠 中转节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+- name: 🐟 漏网之鱼
+  type: select
+  include-all: true
+  include-all-proxies: true
+  include-all-providers: true
+  proxies:
+  - 🚀 节点选择
+  - 🌄 落地节点
+  - DIRECT
+  - REJECT
+  - __PROXY_PROVIDERS__
+  - __PROXY_NODES__
+rules:
+# V4 Android app package routing. Mihomo PROCESS-NAME matches Android package names.
+# Keep prediction-market apps before broad crypto/Web3 apps to avoid category shadowing.
+- PROCESS-NAME,com.polymarket.android,📈 预测市场
+- PROCESS-NAME,com.kalshi.mobile,📈 预测市场
+- PROCESS-NAME,com.markets.manifold,📈 预测市场
+- PROCESS-NAME,com.gateio.gateio,💰 加密货币
+- PROCESS-NAME,com.binance.dev,💰 加密货币
+- PROCESS-NAME,com.binance.us,💰 加密货币
+- PROCESS-NAME,com.okinc.okex.gp,💰 加密货币
+- PROCESS-NAME,com.bybit.app,💰 加密货币
+- PROCESS-NAME,com.bybit.eu,💰 加密货币
+- PROCESS-NAME,com.bitget.exchange,💰 加密货币
+- PROCESS-NAME,com.kubi.kucoin,💰 加密货币
+- PROCESS-NAME,com.mexcpro.client,💰 加密货币
+- PROCESS-NAME,com.coinbase.android,💰 加密货币
+- PROCESS-NAME,com.kraken.invest.app,💰 加密货币
+- PROCESS-NAME,com.kraken.trade,💰 加密货币
+- PROCESS-NAME,co.mona.android,💰 加密货币
+- PROCESS-NAME,com.crypto.exchange,💰 加密货币
+- PROCESS-NAME,pro.huobi,💰 加密货币
+- PROCESS-NAME,com.coinex.trade.play,💰 加密货币
+- PROCESS-NAME,io.metamask,💰 加密货币
+- PROCESS-NAME,com.wallet.crypto.trustapp,💰 加密货币
+- PROCESS-NAME,app.phantom,💰 加密货币
+- PROCESS-NAME,vip.mytokenpocket,💰 加密货币
+- PROCESS-NAME,im.token.app,💰 加密货币
+- PROCESS-NAME,org.toshi,💰 加密货币
+- PROCESS-NAME,com.bitkeep.wallet,💰 加密货币
+- PROCESS-NAME,com.uniswap.mobile,💰 加密货币
+- PROCESS-NAME,me.rainbow,💰 加密货币
+- PROCESS-NAME,com.coinmarketcap.android,💰 加密货币
+- PROCESS-NAME,com.coingecko.coingeckoapp,💰 加密货币
+- RULE-SET,private-ip,🏠 私有网络,no-resolve
+- RULE-SET,geolocation-cn,🔒 国内服务
+- RULE-SET,cn,🔒 国内服务
+- RULE-SET,cn-ip,🔒 国内服务,no-resolve
+- DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT
+- DOMAIN-SUFFIX,services.googleapis.cn,DIRECT
+- DOMAIN,clientservices.googleapis.com,DIRECT
+- DOMAIN,connectivitycheck.gstatic.com,DIRECT
+- DOMAIN,beacons.gvt2.com,DIRECT
+- DOMAIN,beacons.gcp.gvt2.com,DIRECT
+- RULE-SET,Dozee_Custom_Proxy,🧩 自定义
+- RULE-SET,Dozee_Prediction_Market,📈 预测市场
+- RULE-SET,crypto-main,💰 加密货币
+- RULE-SET,crypto-blackmatrix,💰 加密货币
+- RULE-SET,Dozee_Crypto_Custom,💰 加密货币
+- AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
+- RULE-SET,category-ai-!cn,💬 AI 服务
+- RULE-SET,youtube,📹 油管视频
+- RULE-SET,google,🔍 谷歌服务
+- RULE-SET,telegram,📲 电报消息
+- RULE-SET,github,🐱 Github
+- RULE-SET,gitlab,🐱 Github
+- RULE-SET,facebook,🌐 社交媒体
+- RULE-SET,instagram,🌐 社交媒体
+- RULE-SET,twitter,🌐 社交媒体
+- RULE-SET,tiktok,🌐 社交媒体
+- RULE-SET,linkedin,🌐 社交媒体
+- RULE-SET,netflix,🎬 流媒体
+- RULE-SET,hulu,🎬 流媒体
+- RULE-SET,disney,🎬 流媒体
+- RULE-SET,hbo,🎬 流媒体
+- RULE-SET,amazon,🎬 流媒体
+- RULE-SET,bahamut,🎬 流媒体
+- RULE-SET,google-ip,🔍 谷歌服务,no-resolve
+- RULE-SET,telegram-ip,📲 电报消息,no-resolve
+- RULE-SET,geolocation-!cn,🌐 非中国
+- MATCH,🐟 漏网之鱼
+rule-providers:
+  category-ai-!cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-!cn.mrs
+    path: ./ruleset/category-ai-!cn.mrs
+    interval: 86400
+    format: mrs
+  youtube:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs
+    path: ./ruleset/youtube.mrs
+    interval: 86400
+    format: mrs
+  google:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs
+    path: ./ruleset/google.mrs
+    interval: 86400
+    format: mrs
+  telegram:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/telegram.mrs
+    path: ./ruleset/telegram.mrs
+    interval: 86400
+    format: mrs
+  geolocation-cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-cn.mrs
+    path: ./ruleset/geolocation-cn.mrs
+    interval: 86400
+    format: mrs
+  cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs
+    path: ./ruleset/cn.mrs
+    interval: 86400
+    format: mrs
+  github:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github.mrs
+    path: ./ruleset/github.mrs
+    interval: 86400
+    format: mrs
+  gitlab:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gitlab.mrs
+    path: ./ruleset/gitlab.mrs
+    interval: 86400
+    format: mrs
+  facebook:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs
+    path: ./ruleset/facebook.mrs
+    interval: 86400
+    format: mrs
+  instagram:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/instagram.mrs
+    path: ./ruleset/instagram.mrs
+    interval: 86400
+    format: mrs
+  twitter:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/twitter.mrs
+    path: ./ruleset/twitter.mrs
+    interval: 86400
+    format: mrs
+  tiktok:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tiktok.mrs
+    path: ./ruleset/tiktok.mrs
+    interval: 86400
+    format: mrs
+  linkedin:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/linkedin.mrs
+    path: ./ruleset/linkedin.mrs
+    interval: 86400
+    format: mrs
+  netflix:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netflix.mrs
+    path: ./ruleset/netflix.mrs
+    interval: 86400
+    format: mrs
+  hulu:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hulu.mrs
+    path: ./ruleset/hulu.mrs
+    interval: 86400
+    format: mrs
+  disney:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/disney.mrs
+    path: ./ruleset/disney.mrs
+    interval: 86400
+    format: mrs
+  hbo:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hbo.mrs
+    path: ./ruleset/hbo.mrs
+    interval: 86400
+    format: mrs
+  amazon:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amazon.mrs
+    path: ./ruleset/amazon.mrs
+    interval: 86400
+    format: mrs
+  bahamut:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bahamut.mrs
+    path: ./ruleset/bahamut.mrs
+    interval: 86400
+    format: mrs
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs
+    path: ./ruleset/geolocation-!cn.mrs
+    interval: 86400
+    format: mrs
+  google-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs
+    path: ./ruleset/google-ip.mrs
+    interval: 86400
+    format: mrs
+  private-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs
+    path: ./ruleset/private-ip.mrs
+    interval: 86400
+    format: mrs
+  cn-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs
+    path: ./ruleset/cn-ip.mrs
+    interval: 86400
+    format: mrs
+  telegram-ip:
+    type: http
+    behavior: ipcidr
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs
+    path: ./ruleset/telegram-ip.mrs
+    interval: 86400
+    format: mrs
+  Dozee_Custom_Proxy:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list
+    path: ./providers/Dozee_Custom_Proxy.list
+    interval: 3600
+  Dozee_Prediction_Market:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list
+    path: ./providers/Dozee_Prediction_Market.list
+    interval: 3600
+  crypto-main:
+    type: http
+    behavior: domain
+    url: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-cryptocurrency.mrs
+    path: ./ruleset/crypto-main.mrs
+    interval: 86400
+    format: mrs
+  crypto-blackmatrix:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Crypto/Crypto.list
+    path: ./providers/crypto-blackmatrix.list
+    interval: 86400
+  Dozee_Crypto_Custom:
+    type: http
+    behavior: classical
+    format: text
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list
+    path: ./providers/Dozee_Crypto_Custom.list
+    interval: 3600

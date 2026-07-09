@@ -9,7 +9,10 @@ except ImportError:
     sys.exit(2)
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE_FILE = ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v3.yaml'
+TEMPLATE_FILES = (
+    ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v3.yaml',
+    ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v4.yaml',
+)
 
 LOCAL_RULE_PROVIDERS = {
     'Dozee_Custom_Proxy': {
@@ -43,6 +46,44 @@ REMOTE_RULE_PROVIDERS = {
         'url': 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Crypto/Crypto.list',
     },
 }
+
+PREDICTION_APP_RULES = (
+    'PROCESS-NAME,com.polymarket.android,📈 预测市场',
+    'PROCESS-NAME,com.kalshi.mobile,📈 预测市场',
+    'PROCESS-NAME,com.markets.manifold,📈 预测市场',
+)
+
+CRYPTO_APP_RULES = (
+    'PROCESS-NAME,com.gateio.gateio,💰 加密货币',
+    'PROCESS-NAME,com.binance.dev,💰 加密货币',
+    'PROCESS-NAME,com.binance.us,💰 加密货币',
+    'PROCESS-NAME,com.okinc.okex.gp,💰 加密货币',
+    'PROCESS-NAME,com.bybit.app,💰 加密货币',
+    'PROCESS-NAME,com.bybit.eu,💰 加密货币',
+    'PROCESS-NAME,com.bitget.exchange,💰 加密货币',
+    'PROCESS-NAME,com.kubi.kucoin,💰 加密货币',
+    'PROCESS-NAME,com.mexcpro.client,💰 加密货币',
+    'PROCESS-NAME,com.coinbase.android,💰 加密货币',
+    'PROCESS-NAME,com.kraken.invest.app,💰 加密货币',
+    'PROCESS-NAME,com.kraken.trade,💰 加密货币',
+    'PROCESS-NAME,co.mona.android,💰 加密货币',
+    'PROCESS-NAME,com.crypto.exchange,💰 加密货币',
+    'PROCESS-NAME,pro.huobi,💰 加密货币',
+    'PROCESS-NAME,com.coinex.trade.play,💰 加密货币',
+    'PROCESS-NAME,io.metamask,💰 加密货币',
+    'PROCESS-NAME,com.wallet.crypto.trustapp,💰 加密货币',
+    'PROCESS-NAME,app.phantom,💰 加密货币',
+    'PROCESS-NAME,vip.mytokenpocket,💰 加密货币',
+    'PROCESS-NAME,im.token.app,💰 加密货币',
+    'PROCESS-NAME,org.toshi,💰 加密货币',
+    'PROCESS-NAME,com.bitkeep.wallet,💰 加密货币',
+    'PROCESS-NAME,com.uniswap.mobile,💰 加密货币',
+    'PROCESS-NAME,me.rainbow,💰 加密货币',
+    'PROCESS-NAME,com.coinmarketcap.android,💰 加密货币',
+    'PROCESS-NAME,com.coingecko.coingeckoapp,💰 加密货币',
+)
+
+V4_APP_RULES = PREDICTION_APP_RULES + CRYPTO_APP_RULES
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -96,12 +137,12 @@ def validate_rules() -> None:
         )
 
 
-def validate_template() -> None:
-    if not TEMPLATE_FILE.exists():
-        fail(f'missing {TEMPLATE_FILE}')
-    data = yaml.safe_load(TEMPLATE_FILE.read_text(encoding='utf-8'))
+def validate_template(template_file: Path) -> None:
+    if not template_file.exists():
+        fail(f'missing {template_file}')
+    data = yaml.safe_load(template_file.read_text(encoding='utf-8'))
     if not isinstance(data, dict):
-        fail(f'{TEMPLATE_FILE} is not a YAML mapping')
+        fail(f'{template_file} is not a YAML mapping')
 
     groups = data.get('proxy-groups') or []
     group_names = {g.get('name') for g in groups if isinstance(g, dict)}
@@ -112,7 +153,7 @@ def validate_template() -> None:
 
     for play_domain in ('+.xn--ngstr-lra8j.com', 'services.googleapis.cn', '+.services.googleapis.cn', 'clientservices.googleapis.com', 'connectivitycheck.gstatic.com', 'beacons.gvt2.com', 'beacons.gcp.gvt2.com'):
         if play_domain not in nameserver_policy:
-            fail(f'{TEMPLATE_FILE} missing DNS policy for Google Play domain {play_domain}')
+            fail(f'{template_file} missing DNS policy for Google Play domain {play_domain}')
 
     for play_rule in (
         'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT',
@@ -123,48 +164,64 @@ def validate_template() -> None:
         'DOMAIN,beacons.gcp.gvt2.com,DIRECT',
     ):
         if play_rule not in rules:
-            fail(f'{TEMPLATE_FILE} missing Google Play direct rule {play_rule}')
+            fail(f'{template_file} missing Google Play direct rule {play_rule}')
 
     expected_providers = {**LOCAL_RULE_PROVIDERS, **REMOTE_RULE_PROVIDERS}
     for provider_name, expected in expected_providers.items():
         group_name = expected['group']
         expected_rule = f'RULE-SET,{provider_name},{group_name}'
         if group_name not in group_names:
-            fail(f'{TEMPLATE_FILE} missing proxy group {group_name}')
+            fail(f'{template_file} missing proxy group {group_name}')
         if expected_rule not in rules:
-            fail(f'{TEMPLATE_FILE} missing rule {expected_rule}')
+            fail(f'{template_file} missing rule {expected_rule}')
         if provider_name not in providers:
-            fail(f'{TEMPLATE_FILE} missing rule-provider {provider_name}')
+            fail(f'{template_file} missing rule-provider {provider_name}')
         provider = providers[provider_name]
         expected_behavior = expected.get('behavior', 'classical')
         expected_format = expected.get('format', 'text')
         if provider.get('behavior') != expected_behavior:
-            fail(f'{TEMPLATE_FILE} provider {provider_name} behavior should be {expected_behavior}')
+            fail(f'{template_file} provider {provider_name} behavior should be {expected_behavior}')
         if provider.get('format') != expected_format:
-            fail(f'{TEMPLATE_FILE} provider {provider_name} format should be {expected_format}')
+            fail(f'{template_file} provider {provider_name} format should be {expected_format}')
         if provider.get('url') != expected['url']:
-            fail(f'{TEMPLATE_FILE} provider {provider_name} url mismatch: {provider.get("url")}')
+            fail(f'{template_file} provider {provider_name} url mismatch: {provider.get("url")}')
 
     for name, rp in providers.items():
         if not isinstance(rp, dict):
-            fail(f'{TEMPLATE_FILE} rule-provider {name} should be a mapping')
+            fail(f'{template_file} rule-provider {name} should be a mapping')
         url = rp.get('url', '')
         path = rp.get('path', '')
         if (isinstance(url, str) and url.endswith('.mrs')) or (isinstance(path, str) and path.endswith('.mrs')):
             if rp.get('format') != 'mrs':
-                fail(f'{TEMPLATE_FILE} rule-provider {name} uses .mrs but format is not mrs')
+                fail(f'{template_file} rule-provider {name} uses .mrs but format is not mrs')
+
+    if template_file.name.endswith('__v4.yaml'):
+        for app_rule in V4_APP_RULES:
+            if app_rule not in rules:
+                fail(f'{template_file} missing V4 app package rule {app_rule}')
+        prediction_app_indexes = [rules.index(rule) for rule in PREDICTION_APP_RULES]
+        crypto_app_indexes = [rules.index(rule) for rule in CRYPTO_APP_RULES]
+        if prediction_app_indexes != list(range(len(PREDICTION_APP_RULES))):
+            fail(f'{template_file} prediction app package rules must be the first V4 rules')
+        if min(crypto_app_indexes) <= max(prediction_app_indexes):
+            fail(f'{template_file} prediction app package rules must stay before crypto package rules')
+        first_non_app_index = len(V4_APP_RULES)
+        if any(index >= first_non_app_index for index in prediction_app_indexes + crypto_app_indexes):
+            fail(f'{template_file} V4 app package rules must stay as one contiguous top-priority block')
+        if rules[first_non_app_index] != 'RULE-SET,private-ip,🏠 私有网络,no-resolve':
+            fail(f'{template_file} V4 package routing block should be followed by the existing V3 rules unchanged')
 
     for rule in rules:
         if not isinstance(rule, str) or not rule.startswith('RULE-SET,'):
             continue
         parts = rule.split(',')
         if len(parts) < 3:
-            fail(f'{TEMPLATE_FILE} malformed RULE-SET rule: {rule}')
+            fail(f'{template_file} malformed RULE-SET rule: {rule}')
         provider_name, group_name = parts[1], parts[2]
         if provider_name not in providers:
-            fail(f'{TEMPLATE_FILE} rule references missing provider {provider_name}: {rule}')
+            fail(f'{template_file} rule references missing provider {provider_name}: {rule}')
         if group_name not in group_names and group_name not in {'DIRECT', 'REJECT'}:
-            fail(f'{TEMPLATE_FILE} rule references missing group {group_name}: {rule}')
+            fail(f'{template_file} rule references missing group {group_name}: {rule}')
 
     private_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and 'private' in r), -1)
     match_index = next((i for i, r in enumerate(rules) if isinstance(r, str) and r.startswith('MATCH,')), len(rules))
@@ -172,21 +229,21 @@ def validate_template() -> None:
     google_quic_reject = 'AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT'
     google_rule = 'RULE-SET,google,🔍 谷歌服务'
     if google_quic_reject not in rules:
-        fail(f'{TEMPLATE_FILE} missing Google QUIC reject rule')
+        fail(f'{template_file} missing Google QUIC reject rule')
     if google_rule not in rules:
-        fail(f'{TEMPLATE_FILE} missing Google service rule')
+        fail(f'{template_file} missing Google service rule')
     if rules.index(google_quic_reject) >= rules.index(google_rule):
-        fail(f'{TEMPLATE_FILE} Google QUIC reject rule must stay before Google service rule')
+        fail(f'{template_file} Google QUIC reject rule must stay before Google service rule')
 
     for provider_name, expected in expected_providers.items():
         expected_rule = f"RULE-SET,{provider_name},{expected['group']}"
         rule_index = rules.index(expected_rule)
         if private_index >= 0 and rule_index <= private_index:
-            fail(f'{TEMPLATE_FILE} {provider_name} rule should stay after private/LAN direct rules')
+            fail(f'{template_file} {provider_name} rule should stay after private/LAN direct rules')
         if rule_index >= broad_index:
-            fail(f'{TEMPLATE_FILE} {provider_name} rule must be before broad geolocation-!cn')
+            fail(f'{template_file} {provider_name} rule must be before broad geolocation-!cn')
         if rule_index >= match_index:
-            fail(f'{TEMPLATE_FILE} {provider_name} rule must be before MATCH')
+            fail(f'{template_file} {provider_name} rule must be before MATCH')
 
     prediction_rule = 'RULE-SET,Dozee_Prediction_Market,📈 预测市场'
     crypto_order = [
@@ -195,19 +252,20 @@ def validate_template() -> None:
         'RULE-SET,Dozee_Crypto_Custom,💰 加密货币',
     ]
     if prediction_rule not in rules:
-        fail(f'{TEMPLATE_FILE} missing prediction-market rule')
+        fail(f'{template_file} missing prediction-market rule')
     prediction_index = rules.index(prediction_rule)
     crypto_indexes = [rules.index(rule) for rule in crypto_order]
     if any(index <= prediction_index for index in crypto_indexes):
-        fail(f'{TEMPLATE_FILE} prediction-market rule must stay before broad crypto rules')
+        fail(f'{template_file} prediction-market rule must stay before broad crypto rules')
     if crypto_indexes != sorted(crypto_indexes):
-        fail(f'{TEMPLATE_FILE} crypto rules should be ordered main -> third-party extra -> Dozee custom')
+        fail(f'{template_file} crypto rules should be ordered main -> third-party extra -> Dozee custom')
 
 
 def main() -> None:
     validate_rules()
-    validate_template()
-    print('OK: custom rules and main V3 template validated')
+    for template_file in TEMPLATE_FILES:
+        validate_template(template_file)
+    print('OK: custom rules and V3/V4 templates validated')
 
 
 if __name__ == '__main__':
