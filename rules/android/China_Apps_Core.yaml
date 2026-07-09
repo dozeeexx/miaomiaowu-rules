@@ -1,0 +1,56 @@
+# 核心国内 App 包名直连白名单
+# Mihomo classical rule-provider payload. Android clients such as FlClash match package names via PROCESS-NAME.
+# Keep business-specific app providers ahead of this list in the main template to avoid category shadowing.
+payload:
+  - PROCESS-NAME,com.tencent.mm # 微信
+  - PROCESS-NAME,com.tencent.mobileqq # QQ
+  - PROCESS-NAME,com.tencent.qqmusic # QQ 音乐
+  - PROCESS-NAME,com.tencent.wemeet.app # 腾讯会议
+  - PROCESS-NAME,com.tencent.qqlive # 腾讯视频
+  - PROCESS-NAME,com.tencent.wework # 企业微信
+  - PROCESS-NAME,com.eg.android.AlipayGphone # 支付宝
+  - PROCESS-NAME,com.taobao.taobao # 淘宝
+  - PROCESS-NAME,com.tmall.wireless # 天猫
+  - PROCESS-NAME,com.taobao.idlefish # 闲鱼
+  - PROCESS-NAME,com.alibaba.android.rimet # 钉钉
+  - PROCESS-NAME,com.autonavi.minimap # 高德地图
+  - PROCESS-NAME,com.ss.android.ugc.aweme # 抖音
+  - PROCESS-NAME,com.ss.android.ugc.aweme.lite # 抖音极速版
+  - PROCESS-NAME,com.ss.android.article.news # 今日头条
+  - PROCESS-NAME,com.ss.android.article.video # 西瓜视频
+  - PROCESS-NAME,com.baidu.searchbox # 百度
+  - PROCESS-NAME,com.baidu.BaiduMap # 百度地图
+  - PROCESS-NAME,com.baidu.netdisk # 百度网盘
+  - PROCESS-NAME,com.baidu.tieba # 百度贴吧
+  - PROCESS-NAME,tv.danmaku.bili # 哔哩哔哩
+  - PROCESS-NAME,com.xingin.xhs # 小红书
+  - PROCESS-NAME,com.smile.gifmaker # 快手
+  - PROCESS-NAME,com.kuaishou.nebula # 快手极速版
+  - PROCESS-NAME,com.qiyi.video # 爱奇艺
+  - PROCESS-NAME,com.youku.phone # 优酷
+  - PROCESS-NAME,com.hunantv.imgo.activity # 芒果 TV
+  - PROCESS-NAME,com.netease.cloudmusic # 网易云音乐
+  - PROCESS-NAME,com.kugou.android # 酷狗音乐
+  - PROCESS-NAME,cn.kuwo.player # 酷我音乐
+  # Life / shopping / travel
+  - PROCESS-NAME,com.sankuai.meituan # 美团
+  - PROCESS-NAME,com.dianping.v1 # 大众点评
+  - PROCESS-NAME,me.ele # 饿了么
+  - PROCESS-NAME,com.sdu.didi.psnger # 滴滴出行
+  - PROCESS-NAME,com.jingdong.app.mall # 京东
+  - PROCESS-NAME,com.xunmeng.pinduoduo # 拼多多
+  - PROCESS-NAME,com.cainiao.wireless # 菜鸟
+  - PROCESS-NAME,com.MobileTicket # 铁路 12306
+  - PROCESS-NAME,ctrip.android.view # 携程
+  - PROCESS-NAME,com.Qunar # 去哪儿旅行
+  - PROCESS-NAME,com.unionpay # 云闪付
+  - PROCESS-NAME,com.chinamworld.main # 中国银行
+  - PROCESS-NAME,com.icbc # 工商银行
+  - PROCESS-NAME,com.ccb # 建设银行
+  - PROCESS-NAME,com.android.bankabc # 农业银行
+  - PROCESS-NAME,com.bocom # 交通银行
+  - PROCESS-NAME,cmb.pb # 招商银行
+  - PROCESS-NAME,cn.com.cmbc.newmbank # 民生银行
+  - PROCESS-NAME,cn.cj.pe # 139 邮箱
+  - PROCESS-NAME,com.netease.mail # 网易邮箱
+  - PROCESS-NAME,com.chaoxing.mobile # 学习通

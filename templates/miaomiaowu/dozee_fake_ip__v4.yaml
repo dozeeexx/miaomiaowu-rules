@@ -266,38 +266,9 @@ proxy-groups:
   - __PROXY_PROVIDERS__
   - __PROXY_NODES__
 rules:
-# V4 Android app package routing. Mihomo PROCESS-NAME matches Android package names.
-# Keep prediction-market apps before broad crypto/Web3 apps to avoid category shadowing.
-- PROCESS-NAME,com.polymarket.android,📈 预测市场
-- PROCESS-NAME,com.kalshi.mobile,📈 预测市场
-- PROCESS-NAME,com.markets.manifold,📈 预测市场
-- PROCESS-NAME,com.gateio.gateio,💰 加密货币
-- PROCESS-NAME,com.binance.dev,💰 加密货币
-- PROCESS-NAME,com.binance.us,💰 加密货币
-- PROCESS-NAME,com.okinc.okex.gp,💰 加密货币
-- PROCESS-NAME,com.bybit.app,💰 加密货币
-- PROCESS-NAME,com.bybit.eu,💰 加密货币
-- PROCESS-NAME,com.bitget.exchange,💰 加密货币
-- PROCESS-NAME,com.kubi.kucoin,💰 加密货币
-- PROCESS-NAME,com.mexcpro.client,💰 加密货币
-- PROCESS-NAME,com.coinbase.android,💰 加密货币
-- PROCESS-NAME,com.kraken.invest.app,💰 加密货币
-- PROCESS-NAME,com.kraken.trade,💰 加密货币
-- PROCESS-NAME,co.mona.android,💰 加密货币
-- PROCESS-NAME,com.crypto.exchange,💰 加密货币
-- PROCESS-NAME,pro.huobi,💰 加密货币
-- PROCESS-NAME,com.coinex.trade.play,💰 加密货币
-- PROCESS-NAME,io.metamask,💰 加密货币
-- PROCESS-NAME,com.wallet.crypto.trustapp,💰 加密货币
-- PROCESS-NAME,app.phantom,💰 加密货币
-- PROCESS-NAME,vip.mytokenpocket,💰 加密货币
-- PROCESS-NAME,im.token.app,💰 加密货币
-- PROCESS-NAME,org.toshi,💰 加密货币
-- PROCESS-NAME,com.bitkeep.wallet,💰 加密货币
-- PROCESS-NAME,com.uniswap.mobile,💰 加密货币
-- PROCESS-NAME,me.rainbow,💰 加密货币
-- PROCESS-NAME,com.coinmarketcap.android,💰 加密货币
-- PROCESS-NAME,com.coingecko.coingeckoapp,💰 加密货币
+- RULE-SET,Dozee_Android_Prediction_Apps,📈 预测市场
+- RULE-SET,Dozee_Android_Crypto_Apps,💰 加密货币
+- RULE-SET,Dozee_Android_CN_Apps_Core,🔒 国内服务
 - RULE-SET,private-ip,🏠 私有网络,no-resolve
 - RULE-SET,geolocation-cn,🔒 国内服务
 - RULE-SET,cn,🔒 国内服务
@@ -539,3 +510,24 @@ rule-providers:
     url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list
     path: ./providers/Dozee_Crypto_Custom.list
     interval: 3600
+  Dozee_Android_Prediction_Apps:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Prediction_Market_Apps.yaml
+    path: ./providers/android/Prediction_Market_Apps.yaml
+    interval: 86400
+  Dozee_Android_Crypto_Apps:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Crypto_Apps.yaml
+    path: ./providers/android/Crypto_Apps.yaml
+    interval: 86400
+  Dozee_Android_CN_Apps_Core:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/China_Apps_Core.yaml
+    path: ./providers/android/China_Apps_Core.yaml
+    interval: 86400

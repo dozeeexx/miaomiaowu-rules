@@ -1,0 +1,31 @@
+# 加密货币 / Web3 App 包名优先匹配
+# Mihomo classical rule-provider payload. Android clients such as FlClash match package names via PROCESS-NAME.
+# Keep business-specific app providers ahead of this list in the main template to avoid category shadowing.
+payload:
+  - PROCESS-NAME,com.gateio.gateio # Gate
+  - PROCESS-NAME,com.binance.dev # Binance
+  - PROCESS-NAME,com.binance.us # Binance US
+  - PROCESS-NAME,com.okinc.okex.gp # OKX
+  - PROCESS-NAME,com.bybit.app # Bybit
+  - PROCESS-NAME,com.bybit.eu # Bybit EU
+  - PROCESS-NAME,com.bitget.exchange # Bitget
+  - PROCESS-NAME,com.kubi.kucoin # KuCoin
+  - PROCESS-NAME,com.mexcpro.client # MEXC
+  - PROCESS-NAME,com.coinbase.android # Coinbase
+  - PROCESS-NAME,com.kraken.invest.app # Kraken
+  - PROCESS-NAME,com.kraken.trade # Kraken Pro
+  - PROCESS-NAME,co.mona.android # Crypto.com
+  - PROCESS-NAME,com.crypto.exchange # Crypto.com Exchange
+  - PROCESS-NAME,pro.huobi # HTX / Huobi
+  - PROCESS-NAME,com.coinex.trade.play # CoinEx
+  - PROCESS-NAME,io.metamask # MetaMask
+  - PROCESS-NAME,com.wallet.crypto.trustapp # Trust Wallet
+  - PROCESS-NAME,app.phantom # Phantom
+  - PROCESS-NAME,vip.mytokenpocket # TokenPocket
+  - PROCESS-NAME,im.token.app # imToken
+  - PROCESS-NAME,org.toshi # Coinbase Wallet
+  - PROCESS-NAME,com.bitkeep.wallet # Bitget Wallet
+  - PROCESS-NAME,com.uniswap.mobile # Uniswap
+  - PROCESS-NAME,me.rainbow # Rainbow
+  - PROCESS-NAME,com.coinmarketcap.android # CoinMarketCap
+  - PROCESS-NAME,com.coingecko.coingeckoapp # CoinGecko

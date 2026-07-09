@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 import sys
+from typing import NoReturn
 
 try:
     import yaml
@@ -13,6 +15,8 @@ TEMPLATE_FILES = (
     ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v3.yaml',
     ROOT / 'templates' / 'miaomiaowu' / 'dozee_fake_ip__v4.yaml',
 )
+V3_TEMPLATE = TEMPLATE_FILES[0]
+V4_TEMPLATE = TEMPLATE_FILES[1]
 
 LOCAL_RULE_PROVIDERS = {
     'Dozee_Custom_Proxy': {
@@ -47,43 +51,28 @@ REMOTE_RULE_PROVIDERS = {
     },
 }
 
-PREDICTION_APP_RULES = (
-    'PROCESS-NAME,com.polymarket.android,📈 预测市场',
-    'PROCESS-NAME,com.kalshi.mobile,📈 预测市场',
-    'PROCESS-NAME,com.markets.manifold,📈 预测市场',
-)
+V4_APP_RULE_PROVIDERS = {
+    'Dozee_Android_Prediction_Apps': {
+        'file': ROOT / 'rules' / 'android' / 'Prediction_Market_Apps.yaml',
+        'group': '📈 预测市场',
+        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Prediction_Market_Apps.yaml',
+    },
+    'Dozee_Android_Crypto_Apps': {
+        'file': ROOT / 'rules' / 'android' / 'Crypto_Apps.yaml',
+        'group': '💰 加密货币',
+        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Crypto_Apps.yaml',
+    },
+    'Dozee_Android_CN_Apps_Core': {
+        'file': ROOT / 'rules' / 'android' / 'China_Apps_Core.yaml',
+        'group': '🔒 国内服务',
+        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/China_Apps_Core.yaml',
+    },
+}
 
-CRYPTO_APP_RULES = (
-    'PROCESS-NAME,com.gateio.gateio,💰 加密货币',
-    'PROCESS-NAME,com.binance.dev,💰 加密货币',
-    'PROCESS-NAME,com.binance.us,💰 加密货币',
-    'PROCESS-NAME,com.okinc.okex.gp,💰 加密货币',
-    'PROCESS-NAME,com.bybit.app,💰 加密货币',
-    'PROCESS-NAME,com.bybit.eu,💰 加密货币',
-    'PROCESS-NAME,com.bitget.exchange,💰 加密货币',
-    'PROCESS-NAME,com.kubi.kucoin,💰 加密货币',
-    'PROCESS-NAME,com.mexcpro.client,💰 加密货币',
-    'PROCESS-NAME,com.coinbase.android,💰 加密货币',
-    'PROCESS-NAME,com.kraken.invest.app,💰 加密货币',
-    'PROCESS-NAME,com.kraken.trade,💰 加密货币',
-    'PROCESS-NAME,co.mona.android,💰 加密货币',
-    'PROCESS-NAME,com.crypto.exchange,💰 加密货币',
-    'PROCESS-NAME,pro.huobi,💰 加密货币',
-    'PROCESS-NAME,com.coinex.trade.play,💰 加密货币',
-    'PROCESS-NAME,io.metamask,💰 加密货币',
-    'PROCESS-NAME,com.wallet.crypto.trustapp,💰 加密货币',
-    'PROCESS-NAME,app.phantom,💰 加密货币',
-    'PROCESS-NAME,vip.mytokenpocket,💰 加密货币',
-    'PROCESS-NAME,im.token.app,💰 加密货币',
-    'PROCESS-NAME,org.toshi,💰 加密货币',
-    'PROCESS-NAME,com.bitkeep.wallet,💰 加密货币',
-    'PROCESS-NAME,com.uniswap.mobile,💰 加密货币',
-    'PROCESS-NAME,me.rainbow,💰 加密货币',
-    'PROCESS-NAME,com.coinmarketcap.android,💰 加密货币',
-    'PROCESS-NAME,com.coingecko.coingeckoapp,💰 加密货币',
+V4_APP_RULESET_RULES = tuple(
+    f"RULE-SET,{provider_name},{provider['group']}"
+    for provider_name, provider in V4_APP_RULE_PROVIDERS.items()
 )
-
-V4_APP_RULES = PREDICTION_APP_RULES + CRYPTO_APP_RULES
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -100,10 +89,19 @@ CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS = (
     'google.', 'youtube.',
 )
 
+APP_PACKAGE_RE = re.compile(r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$')
 
-def fail(msg: str) -> None:
+
+def fail(msg: str) -> NoReturn:
     print(f'ERROR: {msg}', file=sys.stderr)
     sys.exit(1)
+
+
+def load_yaml(path: Path):
+    try:
+        return yaml.safe_load(path.read_text(encoding='utf-8'))
+    except Exception as exc:  # noqa: BLE001 - validation script should print concise failures
+        fail(f'{path} is not valid YAML: {exc}')
 
 
 def validate_rule_file(rule_file: Path, *, crypto_custom: bool = False) -> None:
@@ -129,6 +127,33 @@ def validate_rule_file(rule_file: Path, *, crypto_custom: bool = False) -> None:
         fail(f'{rule_file} contains duplicate active rules: {duplicates[:5]}')
 
 
+def validate_app_package_rule_file(rule_file: Path) -> set[str]:
+    if not rule_file.exists():
+        fail(f'missing {rule_file}')
+    data = load_yaml(rule_file)
+    if not isinstance(data, dict):
+        fail(f'{rule_file} should be a YAML mapping with a payload list')
+    payload = data.get('payload')
+    if not isinstance(payload, list):
+        fail(f'{rule_file} should be a YAML mapping with a payload list')
+    packages: list[str] = []
+    for idx, raw_rule in enumerate(payload, 1):
+        if not isinstance(raw_rule, str):
+            fail(f'{rule_file}:payload[{idx}] should be a string')
+        rule = raw_rule.strip()
+        parts = [part.strip() for part in rule.split(',')]
+        if len(parts) != 2 or parts[0] != 'PROCESS-NAME':
+            fail(f'{rule_file}:payload[{idx}] must be PROCESS-NAME,<android.package>, got: {rule}')
+        package = parts[1]
+        if not APP_PACKAGE_RE.match(package):
+            fail(f'{rule_file}:payload[{idx}] invalid Android package name: {package}')
+        packages.append(package)
+    duplicates = sorted({package for package in packages if packages.count(package) > 1})
+    if duplicates:
+        fail(f'{rule_file} contains duplicate packages: {duplicates[:5]}')
+    return set(packages)
+
+
 def validate_rules() -> None:
     for provider_name, provider in LOCAL_RULE_PROVIDERS.items():
         validate_rule_file(
@@ -136,11 +161,34 @@ def validate_rules() -> None:
             crypto_custom=(provider_name == 'Dozee_Crypto_Custom'),
         )
 
+    seen_packages: dict[str, str] = {}
+    for provider_name, provider in V4_APP_RULE_PROVIDERS.items():
+        packages = validate_app_package_rule_file(provider['file'])
+        for package in packages:
+            previous = seen_packages.get(package)
+            if previous:
+                fail(f'Android package {package} appears in both {previous} and {provider_name}')
+            seen_packages[package] = provider_name
+
+
+def validate_expected_provider(template_file: Path, providers: dict, provider_name: str, expected: dict) -> None:
+    if provider_name not in providers:
+        fail(f'{template_file} missing rule-provider {provider_name}')
+    provider = providers[provider_name]
+    expected_behavior = expected.get('behavior', 'classical')
+    expected_format = expected.get('format', 'text')
+    if provider.get('behavior') != expected_behavior:
+        fail(f'{template_file} provider {provider_name} behavior should be {expected_behavior}')
+    if provider.get('format') != expected_format:
+        fail(f'{template_file} provider {provider_name} format should be {expected_format}')
+    if provider.get('url') != expected['url']:
+        fail(f'{template_file} provider {provider_name} url mismatch: {provider.get("url")}')
+
 
 def validate_template(template_file: Path) -> None:
     if not template_file.exists():
         fail(f'missing {template_file}')
-    data = yaml.safe_load(template_file.read_text(encoding='utf-8'))
+    data = load_yaml(template_file)
     if not isinstance(data, dict):
         fail(f'{template_file} is not a YAML mapping')
 
@@ -174,17 +222,30 @@ def validate_template(template_file: Path) -> None:
             fail(f'{template_file} missing proxy group {group_name}')
         if expected_rule not in rules:
             fail(f'{template_file} missing rule {expected_rule}')
-        if provider_name not in providers:
-            fail(f'{template_file} missing rule-provider {provider_name}')
-        provider = providers[provider_name]
-        expected_behavior = expected.get('behavior', 'classical')
-        expected_format = expected.get('format', 'text')
-        if provider.get('behavior') != expected_behavior:
-            fail(f'{template_file} provider {provider_name} behavior should be {expected_behavior}')
-        if provider.get('format') != expected_format:
-            fail(f'{template_file} provider {provider_name} format should be {expected_format}')
-        if provider.get('url') != expected['url']:
-            fail(f'{template_file} provider {provider_name} url mismatch: {provider.get("url")}')
+        validate_expected_provider(template_file, providers, provider_name, expected)
+
+    if template_file.name.endswith('__v4.yaml'):
+        if list(rules[:len(V4_APP_RULESET_RULES)]) != list(V4_APP_RULESET_RULES):
+            fail(f'{template_file} V4 app rule-set order must be prediction -> crypto -> CN core')
+        for provider_name, expected in V4_APP_RULE_PROVIDERS.items():
+            if expected['group'] not in group_names:
+                fail(f'{template_file} missing V4 app target group {expected["group"]}')
+            expected_rule = f"RULE-SET,{provider_name},{expected['group']}"
+            if expected_rule not in rules:
+                fail(f'{template_file} missing V4 app rule-set {expected_rule}')
+            validate_expected_provider(
+                template_file,
+                providers,
+                provider_name,
+                {**expected, 'behavior': 'classical', 'format': 'yaml'},
+            )
+        inline_process_rules = [rule for rule in rules if isinstance(rule, str) and rule.startswith('PROCESS-NAME,')]
+        if inline_process_rules:
+            fail(f'{template_file} should keep app packages in V4 rule-providers, not inline rules: {inline_process_rules[:3]}')
+    else:
+        unexpected = set(providers) & set(V4_APP_RULE_PROVIDERS)
+        if unexpected:
+            fail(f'{template_file} is the stable V3 template and must not include V4 app providers: {sorted(unexpected)}')
 
     for name, rp in providers.items():
         if not isinstance(rp, dict):
@@ -194,22 +255,6 @@ def validate_template(template_file: Path) -> None:
         if (isinstance(url, str) and url.endswith('.mrs')) or (isinstance(path, str) and path.endswith('.mrs')):
             if rp.get('format') != 'mrs':
                 fail(f'{template_file} rule-provider {name} uses .mrs but format is not mrs')
-
-    if template_file.name.endswith('__v4.yaml'):
-        for app_rule in V4_APP_RULES:
-            if app_rule not in rules:
-                fail(f'{template_file} missing V4 app package rule {app_rule}')
-        prediction_app_indexes = [rules.index(rule) for rule in PREDICTION_APP_RULES]
-        crypto_app_indexes = [rules.index(rule) for rule in CRYPTO_APP_RULES]
-        if prediction_app_indexes != list(range(len(PREDICTION_APP_RULES))):
-            fail(f'{template_file} prediction app package rules must be the first V4 rules')
-        if min(crypto_app_indexes) <= max(prediction_app_indexes):
-            fail(f'{template_file} prediction app package rules must stay before crypto package rules')
-        first_non_app_index = len(V4_APP_RULES)
-        if any(index >= first_non_app_index for index in prediction_app_indexes + crypto_app_indexes):
-            fail(f'{template_file} V4 app package rules must stay as one contiguous top-priority block')
-        if rules[first_non_app_index] != 'RULE-SET,private-ip,🏠 私有网络,no-resolve':
-            fail(f'{template_file} V4 package routing block should be followed by the existing V3 rules unchanged')
 
     for rule in rules:
         if not isinstance(rule, str) or not rule.startswith('RULE-SET,'):
@@ -261,10 +306,30 @@ def validate_template(template_file: Path) -> None:
         fail(f'{template_file} crypto rules should be ordered main -> third-party extra -> Dozee custom')
 
 
+def validate_v4_is_v3_plus_app_layer() -> None:
+    v3 = load_yaml(V3_TEMPLATE)
+    v4 = load_yaml(V4_TEMPLATE)
+    for key in ('mode', 'dns', 'proxies', 'proxy-groups'):
+        if v4.get(key) != v3.get(key):
+            fail(f'V4 should keep V3 {key} unchanged')
+    if v4.get('rules', [])[len(V4_APP_RULESET_RULES):] != v3.get('rules', []):
+        fail('V4 should be V3 rules plus only the top Android app rule-set layer')
+    v3_providers = v3.get('rule-providers') or {}
+    v4_providers = v4.get('rule-providers') or {}
+    for provider_name, provider in v3_providers.items():
+        if v4_providers.get(provider_name) != provider:
+            fail(f'V4 should keep V3 provider {provider_name} unchanged')
+    extra_providers = set(v4_providers) - set(v3_providers)
+    expected_extra = set(V4_APP_RULE_PROVIDERS)
+    if extra_providers != expected_extra:
+        fail(f'V4 provider extras should be exactly {sorted(expected_extra)}, got {sorted(extra_providers)}')
+
+
 def main() -> None:
     validate_rules()
     for template_file in TEMPLATE_FILES:
         validate_template(template_file)
+    validate_v4_is_v3_plus_app_layer()
     print('OK: custom rules and V3/V4 templates validated')
 
 
