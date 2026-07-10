@@ -8,7 +8,7 @@
 - **改自定义规则**：改 `rules/Custom_Proxy.list`。
 - **改预测市场规则**：改 `rules/Prediction_Market.list`。
 - **改加密货币/Web3 规则**：改 `scripts/build_crypto_custom.py` 的筛选/人工增强逻辑，然后运行生成器；不要手写覆盖生成结果。
-- **改 Android 包名规则**：改 `rules/android/*.yaml`；V4 会优先引用这些包名规则集，V3 不受影响。
+- **改 Android 包名规则**：改 `rules/android/Crypto_Apps.yaml`；V4 只引用这一份 App 包名规则集，V3 不受影响。
 - **加业务分组**：同时改 `proxy-groups / rules / rule-providers`，并更新 `scripts/validate.py`。
 - **Android 应用包名分流**：用 `templates/miaomiaowu/dozee_fake_ip__v4.yaml`；V3 保持原样。
 - **加中转节点**：节点名带 `中转|relay|entry`。
@@ -22,7 +22,6 @@
 - `rules/Prediction_Market.list`
 - `rules/Dozee_Crypto_Custom.list`
 - `rules/android/Crypto_Apps.yaml`
-- `rules/android/China_Apps_Core.yaml`
 - `scripts/build_crypto_custom.py`
 - `scripts/validate.py`
 - `.github/workflows/validate.yml`
@@ -31,9 +30,9 @@
 ## 模板原则
 
 - 主模板是 `fake-ip`。
-- V3 保持稳定域名/规则集分流；V4 是 FlClash/Android 包名增强版。
-- V4 顶部只放 2 个 Android 包名规则集：Crypto/Web3 App → 核心国内 App 直连。
-- V4 包名规则使用独立 `rules/android/*.yaml` provider 维护，不把大量包名散落在主模板里。
+- V3 保持稳定域名/规则集分流；V4 是低冲突的 FlClash/Android Crypto App 包名增强版。
+- V4 先保留 V3 的私有网络/LAN 规则，再插入唯一的 Crypto/Web3 App 包名规则；其余规则与 V3 完全一致。
+- V4 包名规则使用独立 `rules/android/Crypto_Apps.yaml` provider 维护，不把大量包名散落在主模板里。
 - 不按国家 / 地区分组。
 - 预留 `🌠 中转节点` / `🌄 落地节点`。
 - 自定义规则走 `Dozee_Custom_Proxy -> 🧩 自定义`。
@@ -41,7 +40,8 @@
 - 加密货币/Web3 走 `crypto-main / crypto-blackmatrix / Dozee_Crypto_Custom -> 💰 加密货币`。
 - 预测市场规则排在泛加密货币规则前面，避免 Polymarket 被泛 crypto 抢走。
 - 预测市场以网页版域名规则为主，不维护 App 包名规则，也不并入泛 Crypto/Web3 App 包名集。
-- V4 包名规则排在所有域名/规则集规则前面；国内核心 App 包名直连低于 Crypto/Web3 App，避免交易所和钱包 App 被误直连。
+- 国内 App 不做整包强制直连，继续交给 V3 的域名/CN/IP 规则，避免 WebView、海外 CDN 和第三方服务被包名规则误伤。
+- V4 的 MetaCubeX `.mrs` provider 使用 `testingcf.jsdelivr.net`；已验证旧 `gh-proxy.com` 返回 HTTP 403，而 25 个 CDN 地址均返回 HTTP 200。V3 保持不动。
 - 节点仍由妙妙屋动态注入，不在模板里硬编码节点名。
 
 ## 加密货币/Web3 规则流水线
@@ -89,7 +89,6 @@
 - 预测市场规则：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list`
 - 加密货币/Web3 补强规则：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list`
 - V4 Crypto/Web3 App 包名：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Crypto_Apps.yaml`
-- V4 国内核心 App 包名：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/China_Apps_Core.yaml`
 
 ## 本地校验
 

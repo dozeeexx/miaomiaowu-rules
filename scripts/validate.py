@@ -18,6 +18,9 @@ TEMPLATE_FILES = (
 V3_TEMPLATE = TEMPLATE_FILES[0]
 V4_TEMPLATE = TEMPLATE_FILES[1]
 
+METACUBEX_GH_PROXY_PREFIX = 'https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/'
+METACUBEX_V4_CDN_PREFIX = 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/'
+
 LOCAL_RULE_PROVIDERS = {
     'Dozee_Custom_Proxy': {
         'file': ROOT / 'rules' / 'Custom_Proxy.list',
@@ -57,17 +60,19 @@ V4_APP_RULE_PROVIDERS = {
         'group': '💰 加密货币',
         'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Crypto_Apps.yaml',
     },
-    'Dozee_Android_CN_Apps_Core': {
-        'file': ROOT / 'rules' / 'android' / 'China_Apps_Core.yaml',
-        'group': '🔒 国内服务',
-        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/China_Apps_Core.yaml',
-    },
 }
 
+RETIRED_V4_APP_RULE_PROVIDERS = {
+    'Dozee_Android_Prediction_Apps': ROOT / 'rules' / 'android' / 'Prediction_Market_Apps.yaml',
+    'Dozee_Android_CN_Apps_Core': ROOT / 'rules' / 'android' / 'China_Apps_Core.yaml',
+}
+
+V4_PRIVATE_RULE = 'RULE-SET,private-ip,🏠 私有网络,no-resolve'
 V4_APP_RULESET_RULES = tuple(
     f"RULE-SET,{provider_name},{provider['group']}"
     for provider_name, provider in V4_APP_RULE_PROVIDERS.items()
 )
+V4_RULE_PREFIX = (V4_PRIVATE_RULE, *V4_APP_RULESET_RULES)
 
 ALLOWED_PREFIXES = {
     'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD', 'DOMAIN-REGEX',
@@ -165,6 +170,16 @@ def validate_rules() -> None:
                 fail(f'Android package {package} appears in both {previous} and {provider_name}')
             seen_packages[package] = provider_name
 
+    for provider_name, retired_file in RETIRED_V4_APP_RULE_PROVIDERS.items():
+        if retired_file.exists():
+            fail(f'retired V4 app provider file should be removed: {provider_name} -> {retired_file}')
+
+
+def expected_provider_url(template_file: Path, url: str) -> str:
+    if template_file == V4_TEMPLATE and url.startswith(METACUBEX_GH_PROXY_PREFIX):
+        return url.replace(METACUBEX_GH_PROXY_PREFIX, METACUBEX_V4_CDN_PREFIX, 1)
+    return url
+
 
 def validate_expected_provider(template_file: Path, providers: dict, provider_name: str, expected: dict) -> None:
     if provider_name not in providers:
@@ -176,7 +191,8 @@ def validate_expected_provider(template_file: Path, providers: dict, provider_na
         fail(f'{template_file} provider {provider_name} behavior should be {expected_behavior}')
     if provider.get('format') != expected_format:
         fail(f'{template_file} provider {provider_name} format should be {expected_format}')
-    if provider.get('url') != expected['url']:
+    expected_url = expected_provider_url(template_file, expected['url'])
+    if provider.get('url') != expected_url:
         fail(f'{template_file} provider {provider_name} url mismatch: {provider.get("url")}')
 
 
@@ -220,8 +236,8 @@ def validate_template(template_file: Path) -> None:
         validate_expected_provider(template_file, providers, provider_name, expected)
 
     if template_file.name.endswith('__v4.yaml'):
-        if list(rules[:len(V4_APP_RULESET_RULES)]) != list(V4_APP_RULESET_RULES):
-            fail(f'{template_file} V4 app rule-set order must be crypto -> CN core')
+        if tuple(rules[:len(V4_RULE_PREFIX)]) != V4_RULE_PREFIX:
+            fail(f'{template_file} V4 rule order must be private/LAN -> crypto App')
         for provider_name, expected in V4_APP_RULE_PROVIDERS.items():
             if expected['group'] not in group_names:
                 fail(f'{template_file} missing V4 app target group {expected["group"]}')
@@ -237,10 +253,20 @@ def validate_template(template_file: Path) -> None:
         inline_process_rules = [rule for rule in rules if isinstance(rule, str) and rule.startswith('PROCESS-NAME,')]
         if inline_process_rules:
             fail(f'{template_file} should keep app packages in V4 rule-providers, not inline rules: {inline_process_rules[:3]}')
+        stale_meta_urls = [
+            name for name, rp in providers.items()
+            if isinstance(rp, dict) and str(rp.get('url', '')).startswith(METACUBEX_GH_PROXY_PREFIX)
+        ]
+        if stale_meta_urls:
+            fail(f'{template_file} V4 should not use the failing gh-proxy.com MetaCubeX URLs: {stale_meta_urls[:5]}')
     else:
-        unexpected = set(providers) & set(V4_APP_RULE_PROVIDERS)
+        unexpected = set(providers) & (set(V4_APP_RULE_PROVIDERS) | set(RETIRED_V4_APP_RULE_PROVIDERS))
         if unexpected:
             fail(f'{template_file} is the stable V3 template and must not include V4 app providers: {sorted(unexpected)}')
+
+    retired = set(providers) & set(RETIRED_V4_APP_RULE_PROVIDERS)
+    if retired:
+        fail(f'{template_file} contains retired V4 app providers: {sorted(retired)}')
 
     for name, rp in providers.items():
         if not isinstance(rp, dict):
@@ -307,13 +333,19 @@ def validate_v4_is_v3_plus_app_layer() -> None:
     for key in ('mode', 'dns', 'proxies', 'proxy-groups'):
         if v4.get(key) != v3.get(key):
             fail(f'V4 should keep V3 {key} unchanged')
-    if v4.get('rules', [])[len(V4_APP_RULESET_RULES):] != v3.get('rules', []):
-        fail('V4 should be V3 rules plus only the top Android app rule-set layer')
+    v3_rules = v3.get('rules', [])
+    expected_v4_rules = [v3_rules[0], *V4_APP_RULESET_RULES, *v3_rules[1:]]
+    if v4.get('rules', []) != expected_v4_rules:
+        fail('V4 should keep private/LAN first, then add only the Crypto Android app rule-set before remaining V3 rules')
     v3_providers = v3.get('rule-providers') or {}
     v4_providers = v4.get('rule-providers') or {}
     for provider_name, provider in v3_providers.items():
-        if v4_providers.get(provider_name) != provider:
-            fail(f'V4 should keep V3 provider {provider_name} unchanged')
+        expected_v4_provider = dict(provider)
+        provider_url = expected_v4_provider.get('url')
+        if isinstance(provider_url, str):
+            expected_v4_provider['url'] = expected_provider_url(V4_TEMPLATE, provider_url)
+        if v4_providers.get(provider_name) != expected_v4_provider:
+            fail(f'V4 should keep V3 provider {provider_name} unchanged except for the tested MetaCubeX CDN URL')
     extra_providers = set(v4_providers) - set(v3_providers)
     expected_extra = set(V4_APP_RULE_PROVIDERS)
     if extra_providers != expected_extra:
