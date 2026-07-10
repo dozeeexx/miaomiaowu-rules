@@ -1,7 +1,0 @@
-# 预测市场 App 包名优先匹配
-# Mihomo classical rule-provider payload. Android clients such as FlClash match package names via PROCESS-NAME.
-# Keep business-specific app providers ahead of this list in the main template to avoid category shadowing.
-payload:
-  - PROCESS-NAME,com.polymarket.android # Polymarket
-  - PROCESS-NAME,com.kalshi.mobile # Kalshi
-  - PROCESS-NAME,com.markets.manifold # Manifold

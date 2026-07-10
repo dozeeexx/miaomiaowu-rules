@@ -52,11 +52,6 @@ REMOTE_RULE_PROVIDERS = {
 }
 
 V4_APP_RULE_PROVIDERS = {
-    'Dozee_Android_Prediction_Apps': {
-        'file': ROOT / 'rules' / 'android' / 'Prediction_Market_Apps.yaml',
-        'group': '📈 预测市场',
-        'url': 'https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Prediction_Market_Apps.yaml',
-    },
     'Dozee_Android_Crypto_Apps': {
         'file': ROOT / 'rules' / 'android' / 'Crypto_Apps.yaml',
         'group': '💰 加密货币',
@@ -226,7 +221,7 @@ def validate_template(template_file: Path) -> None:
 
     if template_file.name.endswith('__v4.yaml'):
         if list(rules[:len(V4_APP_RULESET_RULES)]) != list(V4_APP_RULESET_RULES):
-            fail(f'{template_file} V4 app rule-set order must be prediction -> crypto -> CN core')
+            fail(f'{template_file} V4 app rule-set order must be crypto -> CN core')
         for provider_name, expected in V4_APP_RULE_PROVIDERS.items():
             if expected['group'] not in group_names:
                 fail(f'{template_file} missing V4 app target group {expected["group"]}')

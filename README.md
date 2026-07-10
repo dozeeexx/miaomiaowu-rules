@@ -21,7 +21,6 @@
 - `rules/Custom_Proxy.list`
 - `rules/Prediction_Market.list`
 - `rules/Dozee_Crypto_Custom.list`
-- `rules/android/Prediction_Market_Apps.yaml`
 - `rules/android/Crypto_Apps.yaml`
 - `rules/android/China_Apps_Core.yaml`
 - `scripts/build_crypto_custom.py`
@@ -33,7 +32,7 @@
 
 - 主模板是 `fake-ip`。
 - V3 保持稳定域名/规则集分流；V4 是 FlClash/Android 包名增强版。
-- V4 顶部只放 3 个 Android 包名规则集：预测市场 App → Crypto/Web3 App → 核心国内 App 直连。
+- V4 顶部只放 2 个 Android 包名规则集：Crypto/Web3 App → 核心国内 App 直连。
 - V4 包名规则使用独立 `rules/android/*.yaml` provider 维护，不把大量包名散落在主模板里。
 - 不按国家 / 地区分组。
 - 预留 `🌠 中转节点` / `🌄 落地节点`。
@@ -41,7 +40,8 @@
 - 预测市场走 `Dozee_Prediction_Market -> 📈 预测市场`。
 - 加密货币/Web3 走 `crypto-main / crypto-blackmatrix / Dozee_Crypto_Custom -> 💰 加密货币`。
 - 预测市场规则排在泛加密货币规则前面，避免 Polymarket 被泛 crypto 抢走。
-- V4 包名规则排在所有域名/规则集规则前面；国内核心 App 包名直连但低于预测市场和 Crypto/Web3 App，避免业务 App 被误直连。
+- 预测市场以网页版域名规则为主，不维护 App 包名规则，也不并入泛 Crypto/Web3 App 包名集。
+- V4 包名规则排在所有域名/规则集规则前面；国内核心 App 包名直连低于 Crypto/Web3 App，避免交易所和钱包 App 被误直连。
 - 节点仍由妙妙屋动态注入，不在模板里硬编码节点名。
 
 ## 加密货币/Web3 规则流水线
@@ -88,7 +88,6 @@
 - 自定义规则：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Custom_Proxy.list`
 - 预测市场规则：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Prediction_Market.list`
 - 加密货币/Web3 补强规则：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list`
-- V4 预测市场 App 包名：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Prediction_Market_Apps.yaml`
 - V4 Crypto/Web3 App 包名：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Crypto_Apps.yaml`
 - V4 国内核心 App 包名：`https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/China_Apps_Core.yaml`
 

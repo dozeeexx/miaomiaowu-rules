@@ -266,7 +266,6 @@ proxy-groups:
   - __PROXY_PROVIDERS__
   - __PROXY_NODES__
 rules:
-- RULE-SET,Dozee_Android_Prediction_Apps,📈 预测市场
 - RULE-SET,Dozee_Android_Crypto_Apps,💰 加密货币
 - RULE-SET,Dozee_Android_CN_Apps_Core,🔒 国内服务
 - RULE-SET,private-ip,🏠 私有网络,no-resolve
@@ -510,13 +509,6 @@ rule-providers:
     url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/Dozee_Crypto_Custom.list
     path: ./providers/Dozee_Crypto_Custom.list
     interval: 3600
-  Dozee_Android_Prediction_Apps:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://raw.githubusercontent.com/dozeeexx/miaomiaowu-rules/main/rules/android/Prediction_Market_Apps.yaml
-    path: ./providers/android/Prediction_Market_Apps.yaml
-    interval: 86400
   Dozee_Android_Crypto_Apps:
     type: http
     behavior: classical
