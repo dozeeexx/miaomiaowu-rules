@@ -10,8 +10,8 @@
 # MetaCubeX reference rules: 223
 # blackmatrix7 Crypto rules: 204
 # supplement sources: 8
-# supplement candidates before filter: 1004
-# selected custom supplement rules: 106
+# supplement candidates before filter: 1013
+# selected custom supplement rules: 115
 
 DOMAIN-KEYWORD,bitget
 DOMAIN-KEYWORD,bnappzh
@@ -45,6 +45,9 @@ DOMAIN-SUFFIX,ardrive.io
 DOMAIN-SUFFIX,arweave.net
 DOMAIN-SUFFIX,backpack.app
 DOMAIN-SUFFIX,basescan.org
+DOMAIN-SUFFIX,bestchange.com
+DOMAIN-SUFFIX,bestchange.net
+DOMAIN-SUFFIX,bestchange.ru
 DOMAIN-SUFFIX,binance.im
 DOMAIN-SUFFIX,binancefuture.com
 DOMAIN-SUFFIX,bitget.club
@@ -66,6 +69,7 @@ DOMAIN-SUFFIX,cmcap.io
 DOMAIN-SUFFIX,coinbaseapi.com
 DOMAIN-SUFFIX,cointelegraph.com
 DOMAIN-SUFFIX,dappreview.com
+DOMAIN-SUFFIX,delets.online
 DOMAIN-SUFFIX,dexscreener.com
 DOMAIN-SUFFIX,galxe.com
 DOMAIN-SUFFIX,gate.ac
@@ -92,12 +96,17 @@ DOMAIN-SUFFIX,moonshot.money
 DOMAIN-SUFFIX,mystenlabs.com
 DOMAIN-SUFFIX,naviprotocol.io
 DOMAIN-SUFFIX,nexus.xyz
+DOMAIN-SUFFIX,onemoment.cc
+DOMAIN-SUFFIX,payget.pro
 DOMAIN-SUFFIX,pinata.cloud
+DOMAIN-SUFFIX,platov.co
 DOMAIN-SUFFIX,polygonscan.com
 DOMAIN-SUFFIX,publicnode.com
 DOMAIN-SUFFIX,quicknode.com
 DOMAIN-SUFFIX,rabby.io
 DOMAIN-SUFFIX,rainbow.me
+DOMAIN-SUFFIX,ramon.cash
+DOMAIN-SUFFIX,ramon.money
 DOMAIN-SUFFIX,save.finance
 DOMAIN-SUFFIX,slush.app
 DOMAIN-SUFFIX,sm.xyz
