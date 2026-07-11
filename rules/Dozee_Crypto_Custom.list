@@ -7,11 +7,11 @@
 # 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。
 # 不收预测市场主域名，也不收 Google/X/Discord/GitHub/通用 CDN/追踪风控等已有或高误伤大类。
 #
-# MetaCubeX reference rules: 223
+# MetaCubeX reference rules: 232
 # blackmatrix7 Crypto rules: 204
 # supplement sources: 8
 # supplement candidates before filter: 1013
-# selected custom supplement rules: 115
+# selected custom supplement rules: 106
 
 DOMAIN-KEYWORD,bitget
 DOMAIN-KEYWORD,bnappzh
@@ -45,9 +45,6 @@ DOMAIN-SUFFIX,ardrive.io
 DOMAIN-SUFFIX,arweave.net
 DOMAIN-SUFFIX,backpack.app
 DOMAIN-SUFFIX,basescan.org
-DOMAIN-SUFFIX,bestchange.com
-DOMAIN-SUFFIX,bestchange.net
-DOMAIN-SUFFIX,bestchange.ru
 DOMAIN-SUFFIX,binance.im
 DOMAIN-SUFFIX,binancefuture.com
 DOMAIN-SUFFIX,bitget.club
@@ -69,7 +66,6 @@ DOMAIN-SUFFIX,cmcap.io
 DOMAIN-SUFFIX,coinbaseapi.com
 DOMAIN-SUFFIX,cointelegraph.com
 DOMAIN-SUFFIX,dappreview.com
-DOMAIN-SUFFIX,delets.online
 DOMAIN-SUFFIX,dexscreener.com
 DOMAIN-SUFFIX,galxe.com
 DOMAIN-SUFFIX,gate.ac
@@ -96,17 +92,12 @@ DOMAIN-SUFFIX,moonshot.money
 DOMAIN-SUFFIX,mystenlabs.com
 DOMAIN-SUFFIX,naviprotocol.io
 DOMAIN-SUFFIX,nexus.xyz
-DOMAIN-SUFFIX,onemoment.cc
-DOMAIN-SUFFIX,payget.pro
 DOMAIN-SUFFIX,pinata.cloud
-DOMAIN-SUFFIX,platov.co
 DOMAIN-SUFFIX,polygonscan.com
 DOMAIN-SUFFIX,publicnode.com
 DOMAIN-SUFFIX,quicknode.com
 DOMAIN-SUFFIX,rabby.io
 DOMAIN-SUFFIX,rainbow.me
-DOMAIN-SUFFIX,ramon.cash
-DOMAIN-SUFFIX,ramon.money
 DOMAIN-SUFFIX,save.finance
 DOMAIN-SUFFIX,slush.app
 DOMAIN-SUFFIX,sm.xyz
