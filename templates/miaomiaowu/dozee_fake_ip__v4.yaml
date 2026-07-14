@@ -266,11 +266,10 @@ proxy-groups:
   - __PROXY_PROVIDERS__
   - __PROXY_NODES__
 rules:
+- IP-CIDR,0.0.0.0/32,REJECT,no-resolve
+- IP-CIDR6,::/128,REJECT,no-resolve
 - RULE-SET,private-ip,🏠 私有网络,no-resolve
 - RULE-SET,Dozee_Android_Crypto_Apps,💰 加密货币
-- RULE-SET,geolocation-cn,🔒 国内服务
-- RULE-SET,cn,🔒 国内服务
-- RULE-SET,cn-ip,🔒 国内服务,no-resolve
 - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT
 - DOMAIN-SUFFIX,services.googleapis.cn,DIRECT
 - DOMAIN,clientservices.googleapis.com,DIRECT
@@ -282,6 +281,9 @@ rules:
 - RULE-SET,crypto-main,💰 加密货币
 - RULE-SET,crypto-blackmatrix,💰 加密货币
 - RULE-SET,Dozee_Crypto_Custom,💰 加密货币
+- RULE-SET,geolocation-cn,🔒 国内服务
+- RULE-SET,cn,🔒 国内服务
+- RULE-SET,cn-ip,🔒 国内服务,no-resolve
 - AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
 - RULE-SET,category-ai-!cn,💬 AI 服务
 - RULE-SET,youtube,📹 油管视频
