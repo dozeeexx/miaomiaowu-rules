@@ -31,7 +31,7 @@
 
 - 主模板是 `fake-ip`。
 - V3 保持稳定域名/规则集分流；V4 是低冲突的 FlClash/Android Crypto App 包名增强版。
-- V4 先保留 V3 的私有网络/LAN 规则，再插入唯一的 Crypto/Web3 App 包名规则；其余规则与 V3 完全一致。
+- V3/V4 先拒绝 DNS 去广告常用的 `0.0.0.0` / `::` sinkhole 地址，再处理私有网络/LAN；V4 随后只插入 Crypto/Web3 App 包名规则，其余规则与 V3 完全一致。
 - V4 包名规则使用独立 `rules/android/Crypto_Apps.yaml` provider 维护，不把大量包名散落在主模板里。
 - 不按国家 / 地区分组。
 - 预留 `🌠 中转节点` / `🌄 落地节点`。
@@ -39,9 +39,10 @@
 - 预测市场走 `Dozee_Prediction_Market -> 📈 预测市场`。
 - 加密货币/Web3 走 `crypto-main / crypto-blackmatrix / Dozee_Crypto_Custom -> 💰 加密货币`。
 - 预测市场规则排在泛加密货币规则前面，避免 Polymarket 被泛 crypto 抢走。
+- 自定义、预测市场、Crypto/Web3 等明确业务规则排在宽泛国内规则前，避免同时被 `cn` 收录的业务域名提前直连。
 - 预测市场以网页版域名规则为主，不维护 App 包名规则，也不并入泛 Crypto/Web3 App 包名集。
 - 国内 App 不做整包强制直连，继续交给 V3 的域名/CN/IP 规则，避免 WebView、海外 CDN 和第三方服务被包名规则误伤。
-- V4 的 MetaCubeX `.mrs` provider 使用 `testingcf.jsdelivr.net`；已验证旧 `gh-proxy.com` 返回 HTTP 403，而 25 个 CDN 地址均返回 HTTP 200。V3 保持不动。
+- V3/V4 的 25 个 MetaCubeX `.mrs` provider 统一使用 `testingcf.jsdelivr.net`，避免两个模板依赖不同镜像；所有 CDN 地址均经过 HTTP 与 MRS 格式验证。
 - 节点仍由妙妙屋动态注入，不在模板里硬编码节点名。
 
 ## 加密货币/Web3 规则流水线
@@ -104,6 +105,8 @@ GitHub `Validate rules and templates` 会在 push / PR / 手动触发时执行�
 python scripts/build_crypto_custom.py --check
 python scripts/validate.py
 ```
+
+校验器会同时检查 V3/V4 的 sinkhole/私网优先级、业务分组映射、动态节点占位符、provider 集合与缓存路径、HTTPS/MRS 格式，以及“V4 仅比 V3 多 Crypto App 层”的不变量。
 
 ## 不再维护
 
