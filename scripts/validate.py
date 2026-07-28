@@ -57,6 +57,7 @@ CORE_RULE_PROVIDER_GROUPS = {
     'category-ai-!cn': '💬 AI 服务',
     'youtube': '📹 油管视频',
     'google': '🔍 谷歌服务',
+    'google-play': '🔍 谷歌服务',
     'telegram': '📲 电报消息',
     'geolocation-cn': '🔒 国内服务',
     'cn': '🔒 国内服务',
@@ -96,6 +97,19 @@ CORE_RULE_PROVIDER_DETAILS = {
     for name, group in CORE_RULE_PROVIDER_GROUPS.items()
 }
 
+GOOGLE_PLAY_PROVIDER = {
+    'type': 'http',
+    'behavior': 'domain',
+    'url': f'{METACUBEX_CDN_PREFIX}geo/geosite/google-play.mrs',
+    'path': './ruleset/google-play.mrs',
+    'interval': 86400,
+    'format': 'mrs',
+}
+CORE_RULE_PROVIDER_DETAILS['google-play'] = {
+    **GOOGLE_PLAY_PROVIDER,
+    'group': CORE_RULE_PROVIDER_GROUPS['google-play'],
+}
+
 BASE_RULE_PROVIDER_GROUPS = {
     **CORE_RULE_PROVIDER_GROUPS,
     **{name: provider['group'] for name, provider in LOCAL_RULE_PROVIDERS.items()},
@@ -127,13 +141,39 @@ V4_APP_RULESET_RULES = tuple(
 )
 V4_RULE_PREFIX = (*BASE_RULE_PREFIX, *V4_APP_RULESET_RULES)
 
-GOOGLE_PLAY_DIRECT_RULES = (
-    'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT',
-    'DOMAIN-SUFFIX,services.googleapis.cn,DIRECT',
-    'DOMAIN,clientservices.googleapis.com,DIRECT',
+GOOGLE_PLAY_PROXY_RULES = (
+    'DOMAIN-SUFFIX,services.googleapis.cn,🔍 谷歌服务',
+    'DOMAIN-SUFFIX,googleapis.cn,🔍 谷歌服务',
+    'DOMAIN,clientservices.googleapis.com,🔍 谷歌服务',
+    'RULE-SET,google-play,🔍 谷歌服务',
+)
+GOOGLE_PLAY_DIRECT_EXCEPTIONS = (
     'DOMAIN,connectivitycheck.gstatic.com,DIRECT',
     'DOMAIN,beacons.gvt2.com,DIRECT',
     'DOMAIN,beacons.gcp.gvt2.com,DIRECT',
+)
+GOOGLE_PLAY_FOREIGN_DNS_KEYS = (
+    'rule-set:google-play',
+    '+.services.googleapis.cn',
+    '+.googleapis.cn',
+    'clientservices.googleapis.com',
+)
+GOOGLE_PLAY_RETIRED_DNS_KEYS = (
+    '+.xn--ngstr-lra8j.com',
+    'services.googleapis.cn',
+)
+GOOGLE_PLAY_DIRECT_DNS_KEYS = (
+    'connectivitycheck.gstatic.com',
+    'beacons.gvt2.com',
+    'beacons.gcp.gvt2.com',
+)
+FOREIGN_DOH = (
+    'https://dns.cloudflare.com/dns-query',
+    'https://dns.google/dns-query',
+)
+DOMESTIC_DOH = (
+    'https://120.53.53.53/dns-query',
+    'https://223.5.5.5/dns-query',
 )
 DOMESTIC_RULES = (
     'RULE-SET,geolocation-cn,🔒 国内服务',
@@ -256,6 +296,10 @@ def validate_expected_provider(template_file: Path, providers: dict, provider_na
         fail(f'{template_file} provider {provider_name} url mismatch: {provider.get("url")}')
     if 'path' in expected and provider.get('path') != expected['path']:
         fail(f'{template_file} provider {provider_name} path mismatch: {provider.get("path")}')
+    if 'type' in expected and provider.get('type') != expected['type']:
+        fail(f'{template_file} provider {provider_name} type should be {expected["type"]}')
+    if 'interval' in expected and provider.get('interval') != expected['interval']:
+        fail(f'{template_file} provider {provider_name} interval should be {expected["interval"]}')
 
 
 def validate_template(template_file: Path) -> None:
@@ -313,13 +357,38 @@ def validate_template(template_file: Path) -> None:
     if not rules or rules[-1] != 'MATCH,🐟 漏网之鱼':
         fail(f'{template_file} must end with exactly MATCH,🐟 漏网之鱼')
 
-    for play_domain in ('+.xn--ngstr-lra8j.com', 'services.googleapis.cn', '+.services.googleapis.cn', 'clientservices.googleapis.com', 'connectivitycheck.gstatic.com', 'beacons.gvt2.com', 'beacons.gcp.gvt2.com'):
-        if play_domain not in nameserver_policy:
-            fail(f'{template_file} missing DNS policy for Google Play domain {play_domain}')
+    if dns.get('respect-rules') is not True:
+        fail(f'{template_file} must keep dns.respect-rules enabled')
+    for dns_key in GOOGLE_PLAY_FOREIGN_DNS_KEYS:
+        if tuple(nameserver_policy.get(dns_key) or ()) != FOREIGN_DOH:
+            fail(f'{template_file} Google Play DNS policy must use foreign DoH for {dns_key}')
+    for dns_key in GOOGLE_PLAY_RETIRED_DNS_KEYS:
+        if dns_key in nameserver_policy:
+            fail(f'{template_file} must remove retired Google Play DNS policy {dns_key}')
+    for dns_key in GOOGLE_PLAY_DIRECT_DNS_KEYS:
+        if tuple(nameserver_policy.get(dns_key) or ()) != DOMESTIC_DOH:
+            fail(f'{template_file} direct Google connectivity exception must keep domestic DNS for {dns_key}')
 
-    for play_rule in GOOGLE_PLAY_DIRECT_RULES:
+    retired_single_host_rules = [rule for rule in rules if 'xn--ngstr-lra8j.com' in rule]
+    if retired_single_host_rules:
+        fail(f'{template_file} must not hand-write Google Play CDN host rules: {retired_single_host_rules[:3]}')
+    rotating_host_rules = [rule for rule in rules if re.search(r'(?:^|[,.])rr\d+\.', rule, re.IGNORECASE)]
+    if rotating_host_rules:
+        fail(f'{template_file} must not hand-write rotating Google Play rr hosts: {rotating_host_rules[:3]}')
+    retired_direct_rules = {
+        'DOMAIN-SUFFIX,services.googleapis.cn,DIRECT',
+        'DOMAIN,clientservices.googleapis.com,DIRECT',
+    }
+    if retired_direct_rules & set(rules):
+        fail(f'{template_file} Google Play control domains must use 🔍 谷歌服务')
+    for play_rule in GOOGLE_PLAY_PROXY_RULES:
         if play_rule not in rules:
-            fail(f'{template_file} missing Google Play direct rule {play_rule}')
+            fail(f'{template_file} Google Play control domains must use 🔍 谷歌服务: missing {play_rule}')
+    for direct_rule in GOOGLE_PLAY_DIRECT_EXCEPTIONS:
+        if direct_rule not in rules:
+            fail(f'{template_file} missing Google connectivity direct exception {direct_rule}')
+    if 'google-play' not in providers:
+        fail(f'{template_file} missing rule-provider google-play')
 
     expected_provider_groups = dict(BASE_RULE_PROVIDER_GROUPS)
     if template_file == V4_TEMPLATE:
@@ -428,8 +497,8 @@ def validate_template(template_file: Path) -> None:
     match_index = rules.index('MATCH,🐟 漏网之鱼')
     broad_index = next((i for i, r in enumerate(rules) if r == 'RULE-SET,geolocation-!cn,🌐 非中国'), match_index)
     domestic_index = min(rules.index(rule) for rule in DOMESTIC_RULES)
-    if any(rules.index(rule) >= domestic_index for rule in GOOGLE_PLAY_DIRECT_RULES):
-        fail(f'{template_file} explicit Google Play direct rules must stay before broad domestic rules')
+    if any(rules.index(rule) >= domestic_index for rule in GOOGLE_PLAY_PROXY_RULES):
+        fail(f'{template_file} Google Play proxy rules must stay before broad domestic rules')
     google_quic_reject = 'AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT'
     google_rule = 'RULE-SET,google,🔍 谷歌服务'
     if google_quic_reject not in rules:
@@ -438,6 +507,11 @@ def validate_template(template_file: Path) -> None:
         fail(f'{template_file} missing Google service rule')
     if rules.index(google_quic_reject) >= rules.index(google_rule):
         fail(f'{template_file} Google QUIC reject rule must stay before Google service rule')
+    first_play_proxy_index = min(rules.index(rule) for rule in GOOGLE_PLAY_PROXY_RULES)
+    if rules.index(google_quic_reject) >= first_play_proxy_index:
+        fail(f'{template_file} Google QUIC reject rule must stay before Google Play proxy rules')
+    if any(rules.index(rule) >= rules.index(google_quic_reject) for rule in GOOGLE_PLAY_DIRECT_EXCEPTIONS):
+        fail(f'{template_file} Google connectivity direct exceptions must stay before Google QUIC reject')
 
     for provider_name, expected in {**LOCAL_RULE_PROVIDERS, **REMOTE_RULE_PROVIDERS}.items():
         expected_rule = f"RULE-SET,{provider_name},{expected['group']}"

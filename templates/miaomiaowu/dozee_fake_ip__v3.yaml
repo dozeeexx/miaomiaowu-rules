@@ -11,18 +11,18 @@ dns:
   - https://120.53.53.53/dns-query
   - https://223.5.5.5/dns-query
   nameserver-policy:
-    +.xn--ngstr-lra8j.com:
-    - https://120.53.53.53/dns-query
-    - https://223.5.5.5/dns-query
-    services.googleapis.cn:
-    - https://120.53.53.53/dns-query
-    - https://223.5.5.5/dns-query
+    rule-set:google-play:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
     +.services.googleapis.cn:
-    - https://120.53.53.53/dns-query
-    - https://223.5.5.5/dns-query
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
+    +.googleapis.cn:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
     clientservices.googleapis.com:
-    - https://120.53.53.53/dns-query
-    - https://223.5.5.5/dns-query
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
     connectivitycheck.gstatic.com:
     - https://120.53.53.53/dns-query
     - https://223.5.5.5/dns-query
@@ -269,12 +269,14 @@ rules:
 - IP-CIDR,0.0.0.0/32,REJECT,no-resolve
 - IP-CIDR6,::/128,REJECT,no-resolve
 - RULE-SET,private-ip,🏠 私有网络,no-resolve
-- DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT
-- DOMAIN-SUFFIX,services.googleapis.cn,DIRECT
-- DOMAIN,clientservices.googleapis.com,DIRECT
 - DOMAIN,connectivitycheck.gstatic.com,DIRECT
 - DOMAIN,beacons.gvt2.com,DIRECT
 - DOMAIN,beacons.gcp.gvt2.com,DIRECT
+- AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
+- DOMAIN-SUFFIX,services.googleapis.cn,🔍 谷歌服务
+- DOMAIN-SUFFIX,googleapis.cn,🔍 谷歌服务
+- DOMAIN,clientservices.googleapis.com,🔍 谷歌服务
+- RULE-SET,google-play,🔍 谷歌服务
 - RULE-SET,Dozee_Custom_Proxy,🧩 自定义
 - RULE-SET,Dozee_Prediction_Market,📈 预测市场
 - RULE-SET,crypto-main,💰 加密货币
@@ -283,7 +285,6 @@ rules:
 - RULE-SET,geolocation-cn,🔒 国内服务
 - RULE-SET,cn,🔒 国内服务
 - RULE-SET,cn-ip,🔒 国内服务,no-resolve
-- AND,((RULE-SET,google),(NETWORK,UDP),(DST-PORT,443)),REJECT
 - RULE-SET,category-ai-!cn,💬 AI 服务
 - RULE-SET,youtube,📹 油管视频
 - RULE-SET,google,🔍 谷歌服务
@@ -325,6 +326,13 @@ rule-providers:
     behavior: domain
     url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs
     path: ./ruleset/google.mrs
+    interval: 86400
+    format: mrs
+  google-play:
+    type: http
+    behavior: domain
+    url: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google-play.mrs
+    path: ./ruleset/google-play.mrs
     interval: 86400
     format: mrs
   telegram:
