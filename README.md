@@ -42,8 +42,18 @@
 - 自定义、预测市场、Crypto/Web3 等明确业务规则排在宽泛国内规则前，避免同时被 `cn` 收录的业务域名提前直连。
 - 预测市场以网页版域名规则为主，不维护 App 包名规则，也不并入泛 Crypto/Web3 App 包名集。
 - 国内 App 不做整包强制直连，继续交给 V3 的域名/CN/IP 规则，避免 WebView、海外 CDN 和第三方服务被包名规则误伤。
-- V3/V4 的 25 个 MetaCubeX `.mrs` provider 统一使用 `testingcf.jsdelivr.net`，避免两个模板依赖不同镜像；所有 CDN 地址均经过 HTTP 与 MRS 格式验证。
+- V3/V4 的 26 个 MetaCubeX `.mrs` provider 统一使用 `testingcf.jsdelivr.net`，避免两个模板依赖不同镜像；所有 CDN 地址均经过 HTTP 与 MRS 格式验证。
 - 节点仍由妙妙屋动态注入，不在模板里硬编码节点名。
+
+## Google Play 下载路径
+
+- V3/V4 共用 MetaCubeX 维护的专用 `google-play.mrs`，命中后走 `🔍 谷歌服务`；控制接口 `services.googleapis.cn`、`googleapis.cn`、`clientservices.googleapis.com` 也走同一策略。
+- `dns.nameserver-policy` 通过 `rule-set:google-play` 和上述控制域名选择 Cloudflare/Google 国外 DoH，使控制面选区、DNS 与下载 CDN 保持同一代理地区；`respect-rules: true` 保持启用，DoH 连接继续按规则经过代理。
+- 不手写或维护任何具体 `rr*` 下载主机、下载 URL 或 IP，变化的 CDN 主机由 `google-play.mrs` 的稳定域名族覆盖。
+- Android/Google 连通性例外 `connectivitycheck.gstatic.com`、`beacons.gvt2.com`、`beacons.gcp.gvt2.com` 继续 DIRECT，并保留国内 DNS；Google UDP/443（QUIC）拒绝仍位于 Google Play 代理规则之前。
+- 不使用 `PROCESS-NAME,com.android.vending` 或 Android Download Manager 整包代理：Play 下载可能由 Play Services 和系统组件协同完成，而且 App 层规则不能修正 split-horizon DNS。
+- IPv6、fake-IP、DNS 监听与 Android App 层不在本次调整范围；只有后续实际日志出现 AAAA/IPv6 绕过证据时才单独处理。
+- 模板安装后不会自动改写已生成订阅；需要在妙妙屋重新生成/保存，再在 FlClash 更新订阅。
 
 ## 加密货币/Web3 规则流水线
 
@@ -96,6 +106,7 @@
 ```bash
 python3 scripts/build_crypto_custom.py
 python3 scripts/build_crypto_custom.py --check
+python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/validate.py
 ```
 
@@ -106,7 +117,7 @@ python scripts/build_crypto_custom.py --check
 python scripts/validate.py
 ```
 
-校验器会同时检查 V3/V4 的 sinkhole/私网优先级、业务分组映射、动态节点占位符、provider 集合与缓存路径、HTTPS/MRS 格式，以及“V4 仅比 V3 多 Crypto App 层”的不变量。
+校验器会同时检查 V3/V4 的 sinkhole/私网优先级、Google Play 路由/DNS/QUIC/顺序一致性、业务分组映射、动态节点占位符、provider 集合与缓存路径、HTTPS/MRS 格式，以及“V4 仅比 V3 多 Crypto App 层”的不变量。
 
 ## 不再维护
 
