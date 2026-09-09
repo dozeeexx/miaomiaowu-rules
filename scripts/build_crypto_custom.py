@@ -16,7 +16,6 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 import argparse
-import json
 import os
 import re
 import subprocess
@@ -37,11 +36,6 @@ SUPPLEMENT_CLASSICAL_SOURCES = {
     "blackmatrix7/Binance": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Binance/Binance.list",
     "blackmatrix7/OKX": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OKX/OKX.list",
     "enriquephl/Web3": "https://raw.githubusercontent.com/enriquephl/QuantumultX_config/main/ClashRuleSet/Clash/Web3.list",
-}
-
-SUPPLEMENT_LURIXO_GEOSITE_SOURCES = {
-    "lurixo/geosite-cryptocurrency": "https://raw.githubusercontent.com/lurixo/sing-box-rules/dev/geosite/geosite-cryptocurrency.json",
-    "lurixo/geosite-binance": "https://raw.githubusercontent.com/lurixo/sing-box-rules/dev/geosite/geosite-binance.json",
 }
 
 # Manual additions focus on exchange app/API domains, wallets, on-chain infra,
@@ -358,29 +352,6 @@ def parse_classical_url(url: str) -> list[str]:
     return [rule for line in fetch(url).splitlines() if (rule := normalize_classical(line))]
 
 
-def parse_lurixo_geosite_url(url: str) -> list[str]:
-    """Convert sing-box geosite JSON rules into Mihomo classical candidates.
-
-    package_name/process-like rules are deliberately ignored: they are useful in
-    sing-box Android, but not portable to the shared Miaomiaowu V3 template.
-    """
-    obj = json.loads(fetch(url))
-    out: list[str] = []
-    for block in obj.get("rules", []):
-        if not isinstance(block, dict):
-            continue
-        for value in block.get("domain", []) or []:
-            if rule := normalize_rule("DOMAIN", value):
-                out.append(rule)
-        for value in block.get("domain_suffix", []) or []:
-            if rule := normalize_rule("DOMAIN-SUFFIX", value):
-                out.append(rule)
-        for value in block.get("domain_keyword", []) or []:
-            if rule := normalize_rule("DOMAIN-KEYWORD", value):
-                out.append(rule)
-    return out
-
-
 def parse_meta_reference(url: str) -> list[str]:
     out: list[str] = []
     for raw in fetch(url).splitlines():
@@ -477,8 +448,6 @@ def build_rules() -> tuple[list[str], dict[str, int]]:
     candidates_by_source["v2fly/category-cryptocurrency"] = list(parse_v2fly_file("category-cryptocurrency"))
     for name, url in SUPPLEMENT_CLASSICAL_SOURCES.items():
         candidates_by_source[name] = parse_classical_url(url)
-    for name, url in SUPPLEMENT_LURIXO_GEOSITE_SOURCES.items():
-        candidates_by_source[name] = parse_lurixo_geosite_url(url)
     candidates_by_source["dozee/manual"] = [
         rule for raw in MANUAL_RULES if (rule := normalize_classical(raw))
     ]
@@ -530,7 +499,7 @@ def render(rules: list[str], stats: dict[str, int]) -> str:
         "# 生成方式：python3 scripts/build_crypto_custom.py",
         "# 自动同步：GitHub Actions 每天 04:30 北京时间运行 .github/workflows/sync-crypto-rules.yml。",
         "# 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；",
-        "# 本文件合并 v2fly / blackmatrix7 / lurixo / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。",
+        "# 本文件合并 v2fly / blackmatrix7 / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。",
         "# 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。",
         "# 不收预测市场主域名，也不收 Google/X/Discord/GitHub/通用 CDN/追踪风控等已有或高误伤大类。",
         "#",

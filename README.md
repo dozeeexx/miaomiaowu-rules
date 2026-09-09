@@ -66,9 +66,10 @@
 - 自制补强原料：
   - v2fly `domain-list-community/category-cryptocurrency`
   - blackmatrix7 `Cryptocurrency / Binance / OKX`
-  - lurixo `sing-box-rules` 的 `geosite-cryptocurrency / geosite-binance`
   - enriquephl `Web3.list`
   - `scripts/build_crypto_custom.py` 内的人工增强域名
+
+此前使用的 lurixo `sing-box-rules` JSON 源已退役并返回 HTTP 404，已从生成器移除；不再依赖该失效来源。
 
 ### 筛选策略
 
