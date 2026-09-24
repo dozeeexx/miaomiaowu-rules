@@ -24,8 +24,11 @@
 - `rules/android/Crypto_Apps.yaml`
 - `scripts/build_crypto_custom.py`
 - `scripts/validate.py`
+- `scripts/check_providers.py`
+- `tests/test_*.py`
 - `.github/workflows/validate.yml`
 - `.github/workflows/sync-crypto-rules.yml`
+- `.github/workflows/provider-health.yml`
 
 ## 模板原则
 
@@ -42,7 +45,7 @@
 - 自定义、预测市场、Crypto/Web3 等明确业务规则排在宽泛国内规则前，避免同时被 `cn` 收录的业务域名提前直连。
 - 预测市场以网页版域名规则为主，不维护 App 包名规则，也不并入泛 Crypto/Web3 App 包名集。
 - 国内 App 不做整包强制直连，继续交给 V3 的域名/CN/IP 规则，避免 WebView、海外 CDN 和第三方服务被包名规则误伤。
-- V3/V4 的 26 个 MetaCubeX `.mrs` provider 统一使用 `testingcf.jsdelivr.net`，避免两个模板依赖不同镜像；所有 CDN 地址均经过 HTTP 与 MRS 格式验证。
+- V3/V4 的 26 个 MetaCubeX `.mrs` provider 统一使用 `testingcf.jsdelivr.net`，避免两个模板依赖不同镜像；模板显式声明 `format: mrs`，独立的 `Provider health` 工作流每天完整 GET 远程 Provider，检查 HTTP 200、非空内容、MRS 魔数和 YAML payload。
 - 节点仍由妙妙屋动态注入，不在模板里硬编码节点名。
 
 ## Google Play 下载路径
@@ -57,7 +60,7 @@
 
 ## 加密货币/Web3 规则流水线
 
-最终客户端只引用我们自己的 V3 模板和自制补强规则；第三方源只当原料，不直接全量信任。
+最终客户端使用模板中明确声明的远程 Provider；其中 MetaCubeX/blackmatrix7 主规则由独立健康检查验证，自制补强规则由生成器从第三方原料筛选后写入本仓库。第三方来源不是无条件全量信任，生成器会去重、过滤高误伤类别并在同步时执行异常缩水护栏。
 
 ### 上游来源
 
@@ -69,7 +72,7 @@
   - enriquephl `Web3.list`
   - `scripts/build_crypto_custom.py` 内的人工增强域名
 
-此前使用的 lurixo `sing-box-rules` JSON 源已退役并返回 HTTP 404，已从生成器移除；不再依赖该失效来源。
+此前使用的 lurixo `sing-box-rules` JSON 源公开地址持续返回 HTTP 404，已从生成器移除；不再依赖该失效来源。
 
 ### 筛选策略
 
@@ -79,19 +82,36 @@
 - 默认只发布 `DOMAIN / DOMAIN-SUFFIX / DOMAIN-WILDCARD`。
 - 仅保留少量加密货币专属 `DOMAIN-KEYWORD`，主要用于 Binance/交易所 App 生成域名。
 - 不发布 IP 段、sing-box `package_name`、进程规则、regex 规则。
-- 排除预测市场主域名、Google/X/Discord/GitHub 等已有大类。
+- 排除预测市场主域名、Google/X/Discord/GitHub 等已有大类；完整域名使用根域/子域边界，品牌标签和确有必要的关键词分开处理，避免 `x.com` 误杀 `bitmex.com`、`krakenfx.com`。
 - 排除通用 CDN、追踪、风控、云厂商域名，避免误伤。
 
 ### 每日同步
 
-`.github/workflows/sync-crypto-rules.yml` 每天 **04:30 北京时间** 自动运行：
+`.github/workflows/sync-crypto-rules.yml` 每天**计划于北京时间 04:30** 自动运行；GitHub Actions 的实际启动可能因平台调度延迟而晚于计划时间：
 
 1. 拉取上游源。
 2. 重建 `rules/Dozee_Crypto_Custom.list`。
-3. 执行生成结果检查和 V3 模板校验。
-4. 如果上游变化导致输出有差异，自动提交到 `main`。
+3. 运行完整 unittest、生成结果检查和 V3/V4 模板校验。
+4. 如果来源为空、来源或输出异常缩水，自动同步失败且不会覆盖已提交输出。
+5. 如果上游变化通过护栏且输出有差异，自动提交到 `main`。
 
-也可以在 GitHub Actions 页面手动运行 `Sync crypto/Web3 rules`。
+也可以在 GitHub Actions 页面手动运行 `Sync crypto/Web3 rules`。完整 unittest 在重建后、自动提交前执行；不能依赖 `GITHUB_TOKEN` 推送再次触发普通 push CI。
+
+### 自动同步护栏
+
+- 两个主规则参考源、各个补强源（含人工规则）都必须解析出至少一条规则；最终输出至少保留 20 条。
+- 对比输出文件中保存的上次计数，任一来源或最终输出下降**超过 30%**即失败；实际移除旧规则超过 30%，即使总条数不变也失败；输出增长超过 100% 也需人工复核。
+- 各源计数随成功生成写入注释，不固定绑定当前条数；老版本头部仍可读取主源/总条数，首次升级后开始保存全部来源基线。
+- 检查在覆盖文件之前执行，失败不更新输出、不自动提交。合法的大规模来源变更也应先停下，核对上游及增删明细，再通过人工维护提交调整策略或护栏；工作流不提供跳过开关。这是突变保护，不代替逐域名业务审计。
+
+### 独立 Provider 健康检查
+
+`Provider health` 仅通过 schedule / 手动触发，计划每天北京时间 **05:17** 运行（可能延迟），只读且不自动提交。新增工作流需推送到远端默认分支后才会生效。
+
+- 按 V3/V4 中的唯一 URL 去重，完整 HTTPS GET，要求 HTTP 200、非空响应；拒绝同 URL 的冲突格式声明。
+- `.mrs` 检查 `28 b5 2f fd` 魔数；YAML 要求非空字符串 payload；classical text 拒绝 HTML/JSON 错误页和非法规则行。
+- 只有明确保留的 `Dozee_Custom_Proxy` 可为注释-only，输出标为 `placeholder`；其他空集失败。日志不打印响应正文、URL 查询参数或节点信息。
+- 网络/格式成功不代表 Mihomo 实际下载、业务出口或 DNS 路由成功，MRS 魔数也不等于完整语义校验。普通 PR CI 不运行这项远程全量检查，但原有生成器 `--check` 仍需读取上游。
 
 ## Raw 地址
 
@@ -109,14 +129,10 @@ python3 scripts/build_crypto_custom.py
 python3 scripts/build_crypto_custom.py --check
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/validate.py
+python3 scripts/check_providers.py
 ```
 
-GitHub `Validate rules and templates` 会在 push / PR / 手动触发时执行：
-
-```bash
-python scripts/build_crypto_custom.py --check
-python scripts/validate.py
-```
+GitHub `Validate rules and templates` 会在 push / PR / 手动触发时执行完整 unittest、生成结果检查和模板校验；独立的 `Provider health` 工作流按计划运行远程 Provider 的完整 GET 与格式检查，不阻塞普通 PR 校验。
 
 校验器会同时检查 V3/V4 的 sinkhole/私网优先级、Google Play 路由/DNS/QUIC/顺序一致性、业务分组映射、动态节点占位符、provider 集合与缓存路径、HTTPS/MRS 格式，以及“V4 仅比 V3 多 Crypto App 层”的不变量。
 
