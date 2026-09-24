@@ -1,0 +1,27 @@
+name: Provider health
+
+on:
+  schedule:
+    # Planned daily at 05:17 Beijing time; GitHub scheduling may be delayed.
+    - cron: '17 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pyyaml
+      - name: Full GET and format checks for unique Providers
+        run: python scripts/check_providers.py

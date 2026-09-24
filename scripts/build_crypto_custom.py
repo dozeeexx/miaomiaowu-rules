@@ -27,6 +27,23 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 OUTFILE = ROOT / "rules" / "Dozee_Crypto_Custom.list"
 
+# Synchronization guardrails stop an upstream outage or parser regression from
+# replacing a healthy generated list with an empty or dramatically smaller one.
+# The previous committed header is used as the comparison baseline, so these
+# checks do not require a second mutable state file.
+SOURCE_MIN_RULES = {
+    "metacubex_reference_rules": 1,
+    "blackmatrix7_crypto_rules": 1,
+    "source_v2fly_category_cryptocurrency": 1,
+    "source_blackmatrix7_cryptocurrency": 1,
+    "source_blackmatrix7_binance": 1,
+    "source_blackmatrix7_okx": 1,
+    "source_enriquephl_web3": 1,
+    "source_dozee_manual": 1,
+}
+MIN_SELECTED_RULES = 20
+MAX_DROP_PERCENT = 30
+
 META_REFERENCE_LIST = "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-cryptocurrency.list"
 BLACKMATRIX_CRYPTO = "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Crypto/Crypto.list"
 V2FLY_BASE = "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/"
@@ -148,44 +165,25 @@ DOMAIN-SUFFIX,walrus.xyz
 DOMAIN-SUFFIX,yzilabs.io
 """.strip().splitlines()
 
-# Keep prediction-market primary domains out of the crypto supplement. The
-# existing Prediction_Market.list intentionally stays before broad crypto rules.
-EXCLUDE_SUBSTRINGS = {
-    "polymarket",
+# Prediction-market and tracking brand tokens intentionally match dynamic names.
+# Full domains MUST use suffix boundaries, never arbitrary substring matching.
+EXCLUDE_SUBSTRINGS = {"polymarket", "kalshi", "appsflyer"}
+EXCLUDE_BRAND_LABELS = {
+    "discord", "twitter", "facebook", "instagram", "google", "youtube",
+}
+
+# Existing business categories and generic infrastructure retain ownership.
+EXCLUDE_SUFFIXES = {
     "predict.fun",
     "predict.fail",
-    "kalshi",
     "predictit.org",
     "manifold.markets",
     "metaculus.com",
     "limitless.exchange",
     "opinion.trade",
-    # Existing broad business categories should keep owning these.
-    "discord.",
-    "twitter.",
     "x.com",
-    "facebook.",
-    "instagram.",
     "github.com",
-    "google.",
-    "youtube.",
-    # Tracking/CDN/fraud/infra-only domains from mobile exchange lists. These
-    # are useful observations but too broad for a shared crypto strategy group.
-    "appsflyer",
-    "appsflayer.com",
-    "appsflyersdk.com",
-    "forter.com",
-    "siftscience.com",
-    "braze.eu",
-    "cloudfront.net",
-    "elb.amazonaws.com",
-    "amazontrust.com",
     "myqcloud.com",
-}
-
-# Generic infrastructure suffixes are often used by crypto apps but are not
-# crypto-specific. Do not route a whole generic service to 💰 加密货币.
-EXCLUDE_SUFFIXES = {
     "ably.io",
     "amazonaws.com",
     "amazontrust.com",
@@ -407,11 +405,12 @@ def suffix_is_excluded(value: str) -> bool:
 
 
 def should_exclude(rule: str) -> bool:
-    lower = rule.lower()
-    if any(token in lower for token in EXCLUDE_SUBSTRINGS):
-        return True
     _rule_type, value = split_rule(rule)
-    return suffix_is_excluded(value)
+    return (
+        any(token in value for token in EXCLUDE_SUBSTRINGS)
+        or bool(set(value.split(".")) & EXCLUDE_BRAND_LABELS)
+        or suffix_is_excluded(value)
+    )
 
 
 def baseline_suffixes(baseline: set[str]) -> set[str]:
@@ -492,12 +491,53 @@ def build_rules() -> tuple[list[str], dict[str, int]]:
     return selected, stats
 
 
+def parse_rendered_stats(content: str) -> dict[str, int]:
+    """Read numeric generator stats embedded in the committed output header."""
+    stats: dict[str, int] = {}
+    legacy_names = {
+        "MetaCubeX reference rules": "metacubex_reference_rules",
+        "blackmatrix7 Crypto rules": "blackmatrix7_crypto_rules",
+        "selected custom supplement rules": "custom_selected_rules",
+    }
+    for raw in content.splitlines():
+        match = re.match(r"^# ([A-Za-z0-9_ ]+): (\d+)$", raw.strip())
+        if match:
+            stats[legacy_names.get(match.group(1), match.group(1))] = int(match.group(2))
+    return stats
+
+
+def guardrail_errors(stats: dict[str, int], previous_stats: dict[str, int] | None) -> list[str]:
+    """Return blocking errors for empty sources or suspicious shrinkage."""
+    errors: list[str] = []
+    for key, minimum in SOURCE_MIN_RULES.items():
+        current = stats.get(key, 0)
+        if current < minimum:
+            errors.append(f"{key} has {current} rules; minimum is {minimum}")
+
+    selected = stats.get("custom_selected_rules", 0)
+    if selected < MIN_SELECTED_RULES:
+        errors.append(
+            f"custom_selected_rules has {selected} rules; minimum is {MIN_SELECTED_RULES}"
+        )
+
+    if previous_stats:
+        comparable_keys = set(SOURCE_MIN_RULES) | {"custom_selected_rules"}
+        for key in sorted(comparable_keys):
+            previous = previous_stats.get(key)
+            current = stats.get(key, 0)
+            if previous and current * 100 < previous * (100 - MAX_DROP_PERCENT):
+                errors.append(
+                    f"{key} dropped from {previous} to {current} (>{MAX_DROP_PERCENT}% decrease)"
+                )
+    return errors
+
+
 def render(rules: list[str], stats: dict[str, int]) -> str:
     lines = [
         "# 加密货币 / Web3 个人完善规则：命中后走「💰 加密货币」策略组。",
         "#",
         "# 生成方式：python3 scripts/build_crypto_custom.py",
-        "# 自动同步：GitHub Actions 每天 04:30 北京时间运行 .github/workflows/sync-crypto-rules.yml。",
+        "# 自动同步：GitHub Actions 计划每天北京时间 04:30 触发（平台可能延迟），运行 .github/workflows/sync-crypto-rules.yml。",
         "# 设计：主规则用 MetaCubeX category-cryptocurrency.mrs；第三方补充用 blackmatrix7 Crypto.list；",
         "# 本文件合并 v2fly / blackmatrix7 / enrique Web3 / 人工增强后，只发布筛选后的补漏规则。",
         "# 策略：不发布 IP、package/process 规则；只保留域名规则和少量加密货币专属 DOMAIN-KEYWORD。",
@@ -510,6 +550,8 @@ def render(rules: list[str], stats: dict[str, int]) -> str:
         f"# selected custom supplement rules: {stats['custom_selected_rules']}",
         "",
     ]
+    lines.extend(f"# {key}: {value}" for key, value in sorted(stats.items()))
+    lines.append("")
     lines.extend(rules)
     return "\n".join(lines) + "\n"
 
@@ -521,8 +563,21 @@ def main() -> int:
 
     rules, stats = build_rules()
     content = render(rules, stats)
+    current = OUTFILE.read_text(encoding="utf-8") if OUTFILE.exists() else ""
+    previous_stats = parse_rendered_stats(current) if current else None
+    errors = guardrail_errors(stats, previous_stats)
+    old_rules = {rule for raw in current.splitlines() if (rule := normalize_classical(raw))}
+    if old_rules:
+        removed = len(old_rules - set(rules))
+        if removed * 100 > len(old_rules) * MAX_DROP_PERCENT:
+            errors.append(f"output removed {removed}/{len(old_rules)} rules (>{MAX_DROP_PERCENT}%)")
+        if len(rules) > len(old_rules) * 2:
+            errors.append("output grew by more than 100%; review upstream changes")
+    if errors:
+        for error in errors:
+            print(f"ERROR: sync guardrail: {error}", file=sys.stderr)
+        return 1
     if args.check:
-        current = OUTFILE.read_text(encoding="utf-8") if OUTFILE.exists() else ""
         if current != content:
             print(f"ERROR: {OUTFILE} is out of date; run scripts/build_crypto_custom.py", file=sys.stderr)
             return 1

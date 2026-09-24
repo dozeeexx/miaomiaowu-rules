@@ -189,11 +189,13 @@ ALLOWED_PREFIXES = {
 
 CRYPTO_CUSTOM_ALLOWED_PREFIXES = {'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-WILDCARD'}
 
-CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS = (
-    'polymarket', 'predict.fun', 'predict.fail', 'kalshi', 'predictit.org',
-    'manifold.markets', 'metaculus.com', 'limitless.exchange', 'opinion.trade',
-    'discord.', 'twitter.', 'x.com', 'facebook.', 'instagram.', 'github.com',
-    'google.', 'youtube.',
+CRYPTO_CUSTOM_FORBIDDEN_KEYWORDS = ('polymarket', 'kalshi')
+CRYPTO_CUSTOM_FORBIDDEN_LABELS = {
+    'discord', 'twitter', 'facebook', 'instagram', 'google', 'youtube',
+}
+CRYPTO_CUSTOM_FORBIDDEN_SUFFIXES = (
+    'predict.fun', 'predict.fail', 'predictit.org', 'manifold.markets',
+    'metaculus.com', 'limitless.exchange', 'opinion.trade', 'x.com', 'github.com',
 )
 
 APP_PACKAGE_RE = re.compile(r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$')
@@ -226,7 +228,13 @@ def validate_rule_file(rule_file: Path, *, crypto_custom: bool = False) -> None:
             fail(f'{rule_file}:{lineno} unsupported rule type {parts[0]!r}: {line}')
         if crypto_custom and parts[0] not in CRYPTO_CUSTOM_ALLOWED_PREFIXES:
             fail(f'{rule_file}:{lineno} crypto custom list should stay domain-only, got {parts[0]!r}: {line}')
-        if crypto_custom and any(token in line.lower() for token in CRYPTO_CUSTOM_FORBIDDEN_SUBSTRINGS):
+        value = parts[1].lower().rstrip('.')
+        if crypto_custom and (
+            any(token in value for token in CRYPTO_CUSTOM_FORBIDDEN_KEYWORDS)
+            or bool(set(value.split('.')) & CRYPTO_CUSTOM_FORBIDDEN_LABELS)
+            or any(value == suffix or value.endswith('.' + suffix)
+                   for suffix in CRYPTO_CUSTOM_FORBIDDEN_SUFFIXES)
+        ):
             fail(f'{rule_file}:{lineno} should not capture prediction/social/dev/google domain in crypto custom list: {line}')
         active_lines.append(line)
     duplicates = sorted({line for line in active_lines if active_lines.count(line) > 1})
